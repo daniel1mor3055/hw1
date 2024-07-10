@@ -38,18 +38,17 @@ class MultiHeadAttention(nn.Module):
     def forward(self, x):
         batch_size, seq_length, embed_dim = x.size()
 
-        qkv = self.qkv_proj(x).permute(1,0,2)  # (batch_size, seq_length, embed_dim * 3)
+        qkv = self.qkv_proj(x)  # (batch_size, seq_length, embed_dim * 3)
         qkv = qkv.reshape(batch_size, seq_length, self.num_heads, 3 * self.head_dim)
-        qkv = qkv.permute(2, 1, 3, 1, 4)  # (num_heads, batch_size, 3 * head_dim, seq_length, head_dim)
+        qkv = qkv.permute(0, 2, 1, 3)  # (batch_size, num_heads, seq_length, 3 * head_dim)
 
-        q, k, v = qkv.chunk(3, dim=2)
+        q, k, v = qkv.chunk(3, dim=-1)  # each will be (batch_size, num_heads, seq_length, head_dim)
 
-        attn_scores = torch.einsum('nhql,nhkl->nhqk', q,
-                                   k) * self.scale  # (num_heads, batch_size, seq_length, seq_length)
-        attn_probs = nn.functional.softmax(attn_scores, dim=-1)  # (num_heads, batch_size, seq_length, seq_length)
+        attn_scores = torch.einsum('bnqd,bnkd->bnqk', q,
+                                   k) * self.scale  # (batch_size, num_heads, seq_length, seq_length)
+        attn_probs = nn.functional.softmax(attn_scores, dim=-1)  # (batch_size, num_heads, seq_length, seq_length)
 
-        attn_output = torch.einsum('nhqk,nhvl->nhql', attn_probs, v)  # (num_heads, batch_size, seq_length, head_dim)
-        attn_output = attn_output.permute(1, 3, 0, 2).contiguous()  # (batch_size, seq_length, num_heads, head_dim)
+        attn_output = torch.einsum('bnqk,bnvd->bnqd', attn_probs, v)  # (batch_size, num_heads, seq_length, head_dim)
         attn_output = attn_output.reshape(batch_size, seq_length, embed_dim)  # (batch_size, seq_length, embed_dim)
 
         output = self.o_proj(attn_output)  # (batch_size, seq_length, embed_dim)

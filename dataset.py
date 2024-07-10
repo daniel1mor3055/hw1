@@ -35,7 +35,7 @@ def collate_batch(batch, vocab):
         processed_text = torch.tensor(text_pipeline(_text, vocab), dtype=torch.int64)
         text_list.append(processed_text)
     return torch.tensor(label_list, dtype=torch.int64), pad_sequence(
-        text_list, padding_value=vocab["<unk>"]
+        text_list, padding_value=vocab["<unk>"], batch_first=True
     )
 
 
