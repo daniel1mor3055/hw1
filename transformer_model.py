@@ -38,9 +38,9 @@ class MultiHeadAttention(nn.Module):
     def forward(self, x):
         batch_size, seq_length, embed_dim = x.size()
 
-        qkv = self.qkv_proj(x)  # (batch_size, seq_length, embed_dim * 3)
+        qkv = self.qkv_proj(x).permute(1,0,2)  # (batch_size, seq_length, embed_dim * 3)
         qkv = qkv.reshape(batch_size, seq_length, self.num_heads, 3 * self.head_dim)
-        qkv = qkv.permute(2, 0, 3, 1, 4)  # (num_heads, batch_size, 3 * head_dim, seq_length, head_dim)
+        qkv = qkv.permute(2, 1, 3, 1, 4)  # (num_heads, batch_size, 3 * head_dim, seq_length, head_dim)
 
         q, k, v = qkv.chunk(3, dim=2)
 
