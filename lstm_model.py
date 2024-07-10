@@ -27,17 +27,23 @@ class CustomLSTMModel(nn.Module):
         batch_size, seq_len = texts.size()
         embedded = self.embedding(texts).permute(1, 2, 0)  # (seq_len, embed_dim, batch_size)
 
-        h = torch.zeros(self.hidden_dim, batch_size).to(texts.device)
-        c = torch.zeros(self.hidden_dim, batch_size).to(texts.device)
+        h = [
+            torch.zeros(self.hidden_dim, batch_size).to(texts.device)
+            for _ in range(self.num_layers)
+        ]
+        c = [
+            torch.zeros(self.hidden_dim, batch_size).to(texts.device)
+            for _ in range(self.num_layers)
+        ]
 
         for t in range(seq_len):
             x = embedded[t, :, :]  # (embed_dim, batch_size)
-            for layer in self.layers:
-                h, c = layer(x, h, c)
-                x = h
+            for i, layer in enumerate(self.layers):
+                h[i], c[i] = layer(x, h[i], c[i])
+                x = h[i]
 
-        h = h.permute(1, 0)  # (batch_size, hidden_dim)
-        y = torch.matmul(h, self.Wy.t()) + self.by.t()  # (batch_size, output_dim)
+        h_last = h[-1].permute(1, 0)  # (batch_size, hidden_dim)
+        y = torch.matmul(h_last, self.Wy.t()) + self.by.t()  # (batch_size, output_dim)
         return y.squeeze(1)
 
     def count_parameters(self):
