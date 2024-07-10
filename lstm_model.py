@@ -38,7 +38,9 @@ class CustomLSTMModel(nn.Module):
 
     def forward(self, texts):
         seq_len, batch_size = texts.size()
-        embedded = self.embedding(texts.T).permute(1, 2, 0)  # (seq_len,embed_dim, batch_size)
+        embedded = self.embedding(texts.T).permute(
+            1, 2, 0
+        )  # (seq_len,embed_dim, batch_size)
 
         h = torch.zeros(self.hidden_dim, batch_size).to(texts.device)
         c = torch.zeros(self.hidden_dim, batch_size).to(texts.device)
@@ -47,13 +49,24 @@ class CustomLSTMModel(nn.Module):
             x = embedded[t, :, :]  # (embed_dim, batch_size)
             concat = torch.cat((h, x), dim=0)  # (hidden_dim + embed_dim, batch_size)
 
-            ft = self.sigmoid(torch.matmul(self.Wf, concat) + self.bf)  # (hidden, batch_size)
-            it = self.sigmoid(torch.matmul(self.Wi, concat) + self.bi)  # (hidden, batch_size)
-            c_hat = self.tanh(torch.matmul(self.Wc, concat) + self.bc)  # (hidden, batch_size)
+            ft = self.sigmoid(
+                torch.matmul(self.Wf, concat) + self.bf
+            )  # (hidden, batch_size)
+            it = self.sigmoid(
+                torch.matmul(self.Wi, concat) + self.bi
+            )  # (hidden, batch_size)
+            c_hat = self.tanh(
+                torch.matmul(self.Wc, concat) + self.bc
+            )  # (hidden, batch_size)
             c = ft * c + it * c_hat  # (hidden, batch_size)
-            ot = self.sigmoid(torch.matmul(self.Wo, concat) + self.bo)  # (hidden, batch_size)
+            ot = self.sigmoid(
+                torch.matmul(self.Wo, concat) + self.bo
+            )  # (hidden, batch_size)
             h = ot * self.tanh(c)
 
         h = h.permute(1, 0)  # (batch_size, hidden_dim)
         y = torch.matmul(h, self.Wy.t()) + self.by.t()  # (batch_size, output_dim)
         return y.squeeze(1)
+
+    def count_parameters(self):
+        return sum(p.numel() for p in self.parameters() if p.requires_grad)

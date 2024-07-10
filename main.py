@@ -33,29 +33,31 @@ criterion = nn.BCEWithLogitsLoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
 # Log hyperparameters and model
-wandb.config.update({
-    "batch_size": batch_size,
-    "embed_dim": embed_dim,
-    "hidden_dim": hidden_dim,
-    "output_dim": output_dim,
-    "n_epochs": n_epochs,
-    "learning_rate": learning_rate,
-    "model": "CustomLSTMModel"
-})
+wandb.config.update(
+    {
+        "batch_size": batch_size,
+        "embed_dim": embed_dim,
+        "hidden_dim": hidden_dim,
+        "output_dim": output_dim,
+        "n_epochs": n_epochs,
+        "learning_rate": learning_rate,
+        "model": "CustomLSTMModel",
+    }
+)
 
 # Training loop
 logger.info("Starting training...")
 for epoch in range(n_epochs):
-    train_loss = train(model, train_dataloader, criterion, optimizer, device, epoch, logger)
+    train_loss = train(
+        model, train_dataloader, criterion, optimizer, device, epoch, logger
+    )
     test_loss = evaluate(model, test_dataloader, criterion, device, logger)
-    logger.info(f'Epoch: {epoch + 1}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}')
+    logger.info(
+        f"Epoch: {epoch + 1}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}"
+    )
 
     # Log metrics to WandB
-    wandb.log({
-        "epoch": epoch + 1,
-        "train_loss": train_loss,
-        "test_loss": test_loss
-    })
+    wandb.log({"epoch": epoch + 1, "train_loss": train_loss, "test_loss": test_loss})
 
 logger.info("Training completed.")
 wandb.finish()

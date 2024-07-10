@@ -14,7 +14,7 @@ def yield_tokens(data_iter):
 
 
 def get_vocab():
-    train_iter = IMDB(split='train')
+    train_iter = IMDB(split="train")
     vocab = build_vocab_from_iterator(yield_tokens(train_iter), specials=["<unk>"])
     vocab.set_default_index(vocab["<unk>"])
     return vocab
@@ -34,13 +34,23 @@ def collate_batch(batch, vocab):
         label_list.append(label_pipeline(_label))
         processed_text = torch.tensor(text_pipeline(_text, vocab), dtype=torch.int64)
         text_list.append(processed_text)
-    return torch.tensor(label_list, dtype=torch.int64), pad_sequence(text_list, padding_value=vocab["<unk>"])
+    return torch.tensor(label_list, dtype=torch.int64), pad_sequence(
+        text_list, padding_value=vocab["<unk>"]
+    )
 
 
 def get_dataloaders(batch_size, vocab):
-    train_iter, test_iter = IMDB(split='train'), IMDB(split='test')
-    train_dataloader = DataLoader(list(train_iter), batch_size=batch_size, shuffle=True,
-                                  collate_fn=lambda x: collate_batch(x, vocab))
-    test_dataloader = DataLoader(list(test_iter), batch_size=batch_size, shuffle=True,
-                                 collate_fn=lambda x: collate_batch(x, vocab))
+    train_iter, test_iter = IMDB(split="train"), IMDB(split="test")
+    train_dataloader = DataLoader(
+        list(train_iter),
+        batch_size=batch_size,
+        shuffle=True,
+        collate_fn=lambda x: collate_batch(x, vocab),
+    )
+    test_dataloader = DataLoader(
+        list(test_iter),
+        batch_size=batch_size,
+        shuffle=True,
+        collate_fn=lambda x: collate_batch(x, vocab),
+    )
     return train_dataloader, test_dataloader
