@@ -24,6 +24,7 @@ embed_dim = 64
 hidden_dim = 128
 output_dim = 1
 n_epochs = 5
+num_layers = 5
 learning_rate = 0.001
 
 # Load vocab and data loaders
@@ -33,37 +34,47 @@ train_dataloader, test_dataloader = get_dataloaders(batch_size, vocab)
 # Initialize model, criterion, and optimizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 vocab_size = len(vocab)
-model = CustomLSTMModel(vocab_size, embed_dim, hidden_dim, output_dim).to(device)
+model = CustomLSTMModel(
+    vocab_size=vocab_size,
+    embed_dim=embed_dim,
+    hidden_dim=hidden_dim,
+    output_dim=output_dim,
+    num_layers=num_layers,
+).to(device)
 
 criterion = nn.BCEWithLogitsLoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
 if use_wandb:
     # Log hyperparameters and model
-    wandb.config.update({
-        "batch_size": batch_size,
-        "embed_dim": embed_dim,
-        "hidden_dim": hidden_dim,
-        "output_dim": output_dim,
-        "n_epochs": n_epochs,
-        "learning_rate": learning_rate,
-        "model": "CustomLSTMModel"
-    })
+    wandb.config.update(
+        {
+            "batch_size": batch_size,
+            "embed_dim": embed_dim,
+            "hidden_dim": hidden_dim,
+            "output_dim": output_dim,
+            "n_epochs": n_epochs,
+            "learning_rate": learning_rate,
+            "model": "CustomLSTMModel",
+        }
+    )
 
 # Training loop
 logger.info("Starting training...")
 for epoch in range(n_epochs):
-    train_loss = train(model, train_dataloader, criterion, optimizer, device, epoch, logger)
+    train_loss = train(
+        model, train_dataloader, criterion, optimizer, device, epoch, logger
+    )
     test_loss = evaluate(model, test_dataloader, criterion, device, logger)
-    logger.info(f'Epoch: {epoch + 1}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}')
+    logger.info(
+        f"Epoch: {epoch + 1}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}"
+    )
 
     if use_wandb:
         # Log metrics to WandB
-        wandb.log({
-            "epoch": epoch + 1,
-            "train_loss": train_loss,
-            "test_loss": test_loss
-        })
+        wandb.log(
+            {"epoch": epoch + 1, "train_loss": train_loss, "test_loss": test_loss}
+        )
 
 logger.info("Training completed.")
 if use_wandb:
