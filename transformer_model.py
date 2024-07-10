@@ -1,0 +1,97 @@
+import math
+
+import torch
+from torch import nn
+
+
+class PositionalEncoding(nn.Module):
+    def __init__(self, embed_dim, max_len=5000):
+        super(PositionalEncoding, self).__init__()
+        self.embed_dim = embed_dim
+
+        pe = torch.zeros(max_len, embed_dim)
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, embed_dim, 2).float() * (-math.log(10000.0) / embed_dim))
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        pe = pe.unsqueeze(0).transpose(0, 1)
+        self.register_buffer('pe', pe)
+
+    def forward(self, x):
+        x = x + self.pe[:x.size(0), :]
+        return x
+
+
+class MultiHeadAttention(nn.Module):
+    def __init__(self, embed_dim, num_heads):
+        super(MultiHeadAttention, self).__init__()
+        self.embed_dim = embed_dim
+        self.num_heads = num_heads
+        self.head_dim = embed_dim // num_heads
+
+        assert self.head_dim * num_heads == self.embed_dim, "embed_dim must be divisible by num_heads"
+
+        self.qkv_proj = nn.Linear(embed_dim, embed_dim * 3)
+        self.o_proj = nn.Linear(embed_dim, embed_dim)
+        self.scale = 1 / math.sqrt(self.head_dim)
+
+    def forward(self, x):
+        batch_size, seq_length, embed_dim = x.size()
+
+        qkv = self.qkv_proj(x)  # (batch_size, seq_length, embed_dim * 3)
+        qkv = qkv.reshape(batch_size, seq_length, self.num_heads, 3 * self.head_dim)
+        qkv = qkv.permute(2, 0, 3, 1, 4)  # (num_heads, batch_size, 3 * head_dim, seq_length, head_dim)
+
+        q, k, v = qkv.chunk(3, dim=2)
+
+        attn_scores = torch.einsum('nhql,nhkl->nhqk', q,
+                                   k) * self.scale  # (num_heads, batch_size, seq_length, seq_length)
+        attn_probs = nn.functional.softmax(attn_scores, dim=-1)  # (num_heads, batch_size, seq_length, seq_length)
+
+        attn_output = torch.einsum('nhqk,nhvl->nhql', attn_probs, v)  # (num_heads, batch_size, seq_length, head_dim)
+        attn_output = attn_output.permute(1, 3, 0, 2).contiguous()  # (batch_size, seq_length, num_heads, head_dim)
+        attn_output = attn_output.reshape(batch_size, seq_length, embed_dim)  # (batch_size, seq_length, embed_dim)
+
+        output = self.o_proj(attn_output)  # (batch_size, seq_length, embed_dim)
+        return output
+
+
+class TransformerBlock(nn.Module):
+    def __init__(self, embed_dim, num_heads, ff_hidden_dim, dropout):
+        super(TransformerBlock, self).__init__()
+        self.attention = MultiHeadAttention(embed_dim, num_heads)
+        self.layernorm1 = nn.LayerNorm(embed_dim)
+        self.feedforward = nn.Sequential(
+            nn.Linear(embed_dim, ff_hidden_dim),
+            nn.ReLU(),
+            nn.Linear(ff_hidden_dim, embed_dim)
+        )
+        self.layernorm2 = nn.LayerNorm(embed_dim)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x):
+        attn_output = self.attention(x)
+        x = self.layernorm1(x + self.dropout(attn_output))
+        ff_output = self.feedforward(x)
+        x = self.layernorm2(x + self.dropout(ff_output))
+        return x
+
+
+class CustomTransformerModel(nn.Module):
+    def __init__(self, vocab_size, embed_dim, num_heads, num_layers, ff_hidden_dim, output_dim, dropout=0.1):
+        super(CustomTransformerModel, self).__init__()
+        self.embedding = nn.Embedding(vocab_size, embed_dim)
+        self.positional_encoding = PositionalEncoding(embed_dim)
+        self.transformer_blocks = nn.ModuleList([
+            TransformerBlock(embed_dim, num_heads, ff_hidden_dim, dropout)
+            for _ in range(num_layers)])
+        self.fc_out = nn.Linear(embed_dim, output_dim)
+
+    def forward(self, x):
+        x = self.embedding(x)
+        x = self.positional_encoding(x)
+        for transformer_block in self.transformer_blocks:
+            x = transformer_block(x)
+        x = x.mean(dim=1)
+        x = self.fc_out(x)
+        return x.squeeze(1)

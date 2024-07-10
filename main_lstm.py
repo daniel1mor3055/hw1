@@ -8,6 +8,7 @@ from lstm_model import CustomLSTMModel
 from train_evaluate import train, evaluate
 
 # Initialize WandB
+wandb.login(key="5fda0926085bc8963be5e43c4e501d992e35abe8")
 wandb.init(project="model-comparison")
 
 # Setup logging
