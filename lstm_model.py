@@ -24,10 +24,8 @@ class CustomLSTMModel(nn.Module):
         nn.init.xavier_uniform_(self.Wy)
 
     def forward(self, texts):
-        seq_len, batch_size = texts.size()
-        embedded = self.embedding(texts.T).permute(
-            1, 2, 0
-        )  # (seq_len, embed_dim, batch_size)
+        batch_size, seq_len = texts.size()
+        embedded = self.embedding(texts).permute(1, 2, 0)  # (seq_len, embed_dim, batch_size)
 
         h = torch.zeros(self.hidden_dim, batch_size).to(texts.device)
         c = torch.zeros(self.hidden_dim, batch_size).to(texts.device)
