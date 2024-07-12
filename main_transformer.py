@@ -1,3 +1,5 @@
+import datetime
+
 import torch
 from torch import nn, optim
 
@@ -6,6 +8,8 @@ from dataset import get_vocab, get_dataloaders
 from logger import setup_logger
 from train_evaluate import train, evaluate
 from transformer_model import CustomTransformerModel
+
+run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_transformer"
 
 # Toggle WandB
 use_wandb = False
@@ -46,6 +50,7 @@ if use_wandb:
     # Log hyperparameters and model
     wandb.config.update(
         {
+            "run_name": run_name,
             "batch_size": batch_size,
             "embed_dim": embed_dim,
             "num_heads": num_heads,
