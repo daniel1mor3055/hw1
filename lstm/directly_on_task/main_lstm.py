@@ -1,15 +1,15 @@
 import datetime
 
 import torch
+import wandb
 from torch import nn, optim
 
-import wandb
 from dataset import get_vocab, get_dataloaders
 from logger import setup_logger
-from lstm_model import CustomLSTMModel
-from train_evaluate import train, evaluate
+from lstm.directly_on_task.lstm_model import CustomLSTMModel
+from lstm.directly_on_task.train_evaluate import train, evaluate
 
-run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_lstm"
+run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_lstm_directly_on_task"
 
 # Toggle WandB
 use_wandb = True
@@ -17,7 +17,7 @@ use_wandb = True
 if use_wandb:
     # Initialize WandB
     wandb.login(key="5fda0926085bc8963be5e43c4e501d992e35abe8")
-    wandb.init(project="model-comparison",name=run_name)
+    wandb.init(project="model-comparison", name=run_name)
 
 # Setup logging
 logger = setup_logger(__name__)
