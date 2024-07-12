@@ -39,7 +39,15 @@ train_dataloader, test_dataloader = get_dataloaders(batch_size, vocab)
 # Initialize model, criterion, and optimizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 vocab_size = len(vocab)
-model = CustomTransformerModel(vocab_size, embed_dim, num_heads, num_layers, ff_hidden_dim, output_dim).to(device)
+model = CustomTransformerModel(
+    vocab_size=vocab_size,
+    embed_dim=embed_dim,
+    num_heads=num_heads,
+    num_layers=num_layers,
+    ff_hidden_dim=ff_hidden_dim,
+    output_dim=output_dim
+).to(device)
+
 
 criterion = nn.BCEWithLogitsLoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
