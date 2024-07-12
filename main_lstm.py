@@ -7,9 +7,8 @@ from logger import setup_logger
 from lstm_model import CustomLSTMModel
 from train_evaluate import train, evaluate
 
-
 # Toggle WandB
-use_wandb = True
+use_wandb = False
 
 if use_wandb:
     # Initialize WandB
@@ -46,7 +45,6 @@ model = CustomLSTMModel(
 criterion = nn.BCEWithLogitsLoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-
 logger.info(f"parameter_cnt: {model.count_parameters}")
 
 if use_wandb:
@@ -67,19 +65,17 @@ if use_wandb:
 # Training loop
 logger.info("Starting training...")
 for epoch in range(n_epochs):
-    train_loss = train(
-        model, train_dataloader, criterion, optimizer, device, epoch, logger, use_wandb
-    )
+    train_loss = train(model, train_dataloader, criterion, optimizer, device, epoch, logger, use_wandb)
     test_loss = evaluate(model, test_dataloader, criterion, device, logger, use_wandb)
-    logger.info(
-        f"Epoch: {epoch + 1}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}"
-    )
+    logger.info(f"Epoch: {epoch + 1}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}")
 
     if use_wandb:
         # Log metrics to WandB
-        wandb.log(
-            {"epoch": epoch + 1, "train_loss": train_loss, "test_loss": test_loss}
-        )
+        wandb.log({
+            "epoch": epoch + 1,
+            "train_loss": train_loss,
+            "test_loss": test_loss
+        })
 
 logger.info("Training completed.")
 if use_wandb:

@@ -7,33 +7,16 @@ from logger import setup_logger
 from train_evaluate import train, evaluate
 from transformer_model import CustomTransformerModel
 
-import logging
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-
-# Create a logger
-logger = logging.getLogger(__name__)
-
-# Example logging messages
-logger.info("This is an info message.")
-logger.error("This is an error message.")
-
-
 # Toggle WandB
-use_wandb = True
+use_wandb = False
 
 if use_wandb:
     # Initialize WandB
     wandb.login(key="5fda0926085bc8963be5e43c4e501d992e35abe8")
     wandb.init(project="model-comparison")
 
-# # Setup logging
-# logger = setup_logger(__name__)
+# Setup logging
+logger = setup_logger(__name__)
 
 # Hyperparameters
 batch_size = 8
@@ -52,13 +35,10 @@ train_dataloader, test_dataloader = get_dataloaders(batch_size, vocab)
 # Initialize model, criterion, and optimizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 vocab_size = len(vocab)
-model = CustomTransformerModel(
-    vocab_size, embed_dim, num_heads, num_layers, ff_hidden_dim, output_dim
-).to(device)
+model = CustomTransformerModel(vocab_size, embed_dim, num_heads, num_layers, ff_hidden_dim, output_dim).to(device)
 
 criterion = nn.BCEWithLogitsLoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-
 
 logger.info(f"parameter_cnt: {model.count_parameters}")
 
@@ -82,19 +62,17 @@ if use_wandb:
 # Training loop
 logger.info("Starting training...")
 for epoch in range(n_epochs):
-    train_loss = train(
-        model, train_dataloader, criterion, optimizer, device, epoch, logger, use_wandb
-    )
+    train_loss = train(model, train_dataloader, criterion, optimizer, device, epoch, logger, use_wandb)
     test_loss = evaluate(model, test_dataloader, criterion, device, logger, use_wandb)
-    logger.info(
-        f"Epoch: {epoch + 1}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}"
-    )
+    logger.info(f'Epoch: {epoch + 1}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}')
 
     if use_wandb:
         # Log metrics to WandB
-        wandb.log(
-            {"epoch": epoch + 1, "train_loss": train_loss, "test_loss": test_loss}
-        )
+        wandb.log({
+            "epoch": epoch + 1,
+            "train_loss": train_loss,
+            "test_loss": test_loss
+        })
 
 logger.info("Training completed.")
 if use_wandb:
