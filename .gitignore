@@ -33,4 +33,4 @@ htmlcov/*
 # local mlflow files
 mlruns/
 /.eggs/
-/wandb/
+**/wandb/
