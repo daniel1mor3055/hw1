@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+from functools import cached_property
 
 
 class CustomLSTMModel(nn.Module):
@@ -25,7 +26,9 @@ class CustomLSTMModel(nn.Module):
 
     def forward(self, texts):
         batch_size, seq_len = texts.size()
-        embedded = self.embedding(texts).permute(1, 2, 0)  # (seq_len, embed_dim, batch_size)
+        embedded = self.embedding(texts).permute(
+            1, 2, 0
+        )  # (seq_len, embed_dim, batch_size)
 
         h = [
             torch.zeros(self.hidden_dim, batch_size).to(texts.device)
@@ -46,6 +49,7 @@ class CustomLSTMModel(nn.Module):
         y = torch.matmul(h_last, self.Wy.t()) + self.by.t()  # (batch_size, output_dim)
         return y.squeeze(1)
 
+    @cached_property
     def count_parameters(self):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
 

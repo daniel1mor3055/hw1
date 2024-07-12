@@ -11,7 +11,9 @@ def setup_logger(name=__name__):
     handler.setLevel(logging.INFO)
 
     # Create formatter and add it to handler
-    formatter = logging.Formatter('%y/%m/%d %H:%M:%S - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(
+        "%Y-%m-%d %H:%M:%S - %(name)s - %(levelname)s - %(message)s"
+    )
     handler.setFormatter(formatter)
 
     # Add handler to the logger

@@ -1,3 +1,4 @@
+from functools import cached_property
 import math
 
 import torch
@@ -11,14 +12,16 @@ class PositionalEncoding(nn.Module):
 
         pe = torch.zeros(max_len, embed_dim)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, embed_dim, 2).float() * (-math.log(10000.0) / embed_dim))
+        div_term = torch.exp(
+            torch.arange(0, embed_dim, 2).float() * (-math.log(10000.0) / embed_dim)
+        )
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
         pe = pe.unsqueeze(0).transpose(0, 1)
-        self.register_buffer('pe', pe)
+        self.register_buffer("pe", pe)
 
     def forward(self, x):
-        x = x + self.pe[:x.size(0), :]
+        x = x + self.pe[: x.size(0), :]
         return x
 
 
@@ -29,7 +32,9 @@ class MultiHeadAttention(nn.Module):
         self.num_heads = num_heads
         self.head_dim = embed_dim // num_heads
 
-        assert self.head_dim * num_heads == self.embed_dim, "embed_dim must be divisible by num_heads"
+        assert (
+            self.head_dim * num_heads == self.embed_dim
+        ), "embed_dim must be divisible by num_heads"
 
         self.qkv_proj = nn.Linear(embed_dim, embed_dim * 3)
         self.o_proj = nn.Linear(embed_dim, embed_dim)
@@ -40,16 +45,27 @@ class MultiHeadAttention(nn.Module):
 
         qkv = self.qkv_proj(x)  # (batch_size, seq_length, embed_dim * 3)
         qkv = qkv.reshape(batch_size, seq_length, self.num_heads, 3 * self.head_dim)
-        qkv = qkv.permute(0, 2, 1, 3)  # (batch_size, num_heads, seq_length, 3 * head_dim)
+        qkv = qkv.permute(
+            0, 2, 1, 3
+        )  # (batch_size, num_heads, seq_length, 3 * head_dim)
 
-        q, k, v = qkv.chunk(3, dim=-1)  # each will be (batch_size, num_heads, seq_length, head_dim)
+        q, k, v = qkv.chunk(
+            3, dim=-1
+        )  # each will be (batch_size, num_heads, seq_length, head_dim)
 
-        attn_scores = torch.einsum('bnqd,bnkd->bnqk', q,
-                                   k) * self.scale  # (batch_size, num_heads, seq_length, seq_length)
-        attn_probs = nn.functional.softmax(attn_scores, dim=-1)  # (batch_size, num_heads, seq_length, seq_length)
+        attn_scores = (
+            torch.einsum("bnqd,bnkd->bnqk", q, k) * self.scale
+        )  # (batch_size, num_heads, seq_length, seq_length)
+        attn_probs = nn.functional.softmax(
+            attn_scores, dim=-1
+        )  # (batch_size, num_heads, seq_length, seq_length)
 
-        attn_output = torch.einsum('bnqk,bnvd->bnqd', attn_probs, v)  # (batch_size, num_heads, seq_length, head_dim)
-        attn_output = attn_output.reshape(batch_size, seq_length, embed_dim)  # (batch_size, seq_length, embed_dim)
+        attn_output = torch.einsum(
+            "bnqk,bnvd->bnqd", attn_probs, v
+        )  # (batch_size, num_heads, seq_length, head_dim)
+        attn_output = attn_output.reshape(
+            batch_size, seq_length, embed_dim
+        )  # (batch_size, seq_length, embed_dim)
 
         output = self.o_proj(attn_output)  # (batch_size, seq_length, embed_dim)
         return output
@@ -63,7 +79,7 @@ class TransformerBlock(nn.Module):
         self.feedforward = nn.Sequential(
             nn.Linear(embed_dim, ff_hidden_dim),
             nn.ReLU(),
-            nn.Linear(ff_hidden_dim, embed_dim)
+            nn.Linear(ff_hidden_dim, embed_dim),
         )
         self.layernorm2 = nn.LayerNorm(embed_dim)
         self.dropout = nn.Dropout(dropout)
@@ -77,13 +93,25 @@ class TransformerBlock(nn.Module):
 
 
 class CustomTransformerModel(nn.Module):
-    def __init__(self, vocab_size, embed_dim, num_heads, num_layers, ff_hidden_dim, output_dim, dropout=0.1):
+    def __init__(
+        self,
+        vocab_size,
+        embed_dim,
+        num_heads,
+        num_layers,
+        ff_hidden_dim,
+        output_dim,
+        dropout=0.1,
+    ):
         super(CustomTransformerModel, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embed_dim)
         self.positional_encoding = PositionalEncoding(embed_dim)
-        self.transformer_blocks = nn.ModuleList([
-            TransformerBlock(embed_dim, num_heads, ff_hidden_dim, dropout)
-            for _ in range(num_layers)])
+        self.transformer_blocks = nn.ModuleList(
+            [
+                TransformerBlock(embed_dim, num_heads, ff_hidden_dim, dropout)
+                for _ in range(num_layers)
+            ]
+        )
         self.fc_out = nn.Linear(embed_dim, output_dim)
 
     def forward(self, x):
@@ -94,3 +122,7 @@ class CustomTransformerModel(nn.Module):
         x = x.mean(dim=1)
         x = self.fc_out(x)
         return x.squeeze(1)
+
+    @cached_property
+    def count_parameters(self):
+        return sum(p.numel() for p in self.parameters() if p.requires_grad)
