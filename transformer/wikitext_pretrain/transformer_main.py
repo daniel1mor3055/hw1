@@ -6,10 +6,10 @@ from torch import nn, optim
 
 from dataset import get_vocab, get_dataloaders
 from logger import setup_logger
-from transformer.directly_on_task.transformer_train_evaluate import train, evaluate
-from transformer.directly_on_task.transformer_model import CustomTransformerModel
+from transformer.wikitext_pretrain.transformer_train_evaluate import train, evaluate
+from transformer.wikitext_pretrain.transformer_model import CustomTransformerModel
 
-run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_transformer_lra_pretrain"
+run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_transformer_wikitext_pretrain"
 
 # Toggle WandB
 use_wandb = True
