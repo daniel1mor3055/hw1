@@ -12,7 +12,7 @@ from lstm.directly_on_task.lstm_train_evaluate import train, evaluate
 run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_lstm_directly_on_task"
 
 # Toggle WandB
-use_wandb = True
+use_wandb = False
 
 if use_wandb:
     # Initialize WandB

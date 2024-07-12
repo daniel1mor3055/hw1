@@ -7,15 +7,14 @@ def train(model, dataloader, criterion, optimizer, device, epoch, logger, use_wa
     model.train()
     total_loss = 0
     for batch_idx, (labels, texts) in enumerate(dataloader):
-        labels, texts = labels.to(device), texts.to(device)
+        texts = texts.to(device)
         optimizer.zero_grad()
 
-        # Shift the target texts by one time step for the decoder input
         input_texts = texts[:, :-1]
         target_texts = texts[:, 1:]
 
         output = model(input_texts)
-        loss = criterion(output.view(-1, output.size(-1)), target_texts.view(-1))
+        loss = criterion(output.reshape(-1, output.size(-1)), target_texts.reshape(-1))
         loss.backward()
         optimizer.step()
         total_loss += loss.item()

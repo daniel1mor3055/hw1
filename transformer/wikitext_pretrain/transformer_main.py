@@ -12,7 +12,7 @@ from transformer.wikitext_pretrain.transformer_model import CustomTransformerMod
 run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_transformer_wikitext_pretrain"
 
 # Toggle WandB
-use_wandb = True
+use_wandb = False
 
 if use_wandb:
     # Initialize WandB
@@ -28,7 +28,6 @@ embed_dim = 64
 num_heads = 2
 num_layers = 16
 ff_hidden_dim = 768
-output_dim = 1
 n_epochs = 2
 learning_rate = 0.001
 
@@ -44,11 +43,10 @@ model = CustomTransformerModel(
     embed_dim=embed_dim,
     num_heads=num_heads,
     num_layers=num_layers,
-    ff_hidden_dim=ff_hidden_dim,
-    output_dim=output_dim
+    ff_hidden_dim=ff_hidden_dim
 ).to(device)
 
-criterion = nn.BCEWithLogitsLoss()
+criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
 logger.info(f"parameter_cnt: {model.count_parameters}")
@@ -63,7 +61,6 @@ if use_wandb:
             "num_heads": num_heads,
             "num_layers": num_layers,
             "ff_hidden_dim": ff_hidden_dim,
-            "output_dim": output_dim,
             "n_epochs": n_epochs,
             "learning_rate": learning_rate,
             "model": "CustomTransformerModel",

@@ -82,30 +82,29 @@ class TransformerBlock(nn.Module):
 
 
 class CustomTransformerModel(nn.Module):
-    def __init__(self, vocab_size, embed_dim, num_heads, num_layers, ff_hidden_dim, output_dim, dropout=0.1):
+    def __init__(self, vocab_size, embed_dim, num_heads, num_layers, ff_hidden_dim, dropout=0.1):
         super(CustomTransformerModel, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embed_dim)
         self.positional_encoding = PositionalEncoding(embed_dim)
         self.transformer_blocks = nn.ModuleList([
             TransformerBlock(embed_dim, num_heads, ff_hidden_dim, dropout)
             for _ in range(num_layers)])
-        self.fc_out = nn.Linear(embed_dim, output_dim)
+        self.fc_out = nn.Linear(embed_dim, vocab_size)
 
     def generate_square_subsequent_mask(self, sz):
-        mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
-        mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
+        mask = (torch.triu(torch.ones(sz, sz)) == 1).T
+        mask = mask.int()
         return mask
 
     def forward(self, x):
-        seq_len, batch_size = x.size(1), x.size(0)
+        batch_size, seq_len = x.size()
         mask = self.generate_square_subsequent_mask(seq_len).to(x.device)
-        x = self.embedding(x) * math.sqrt(self.embedding.embedding_dim)
+        x = self.embedding(x)
         x = self.positional_encoding(x)
-
         for transformer_block in self.transformer_blocks:
             x = transformer_block(x, mask)
         x = self.fc_out(x)
-        return x
+        return x.squeeze(2)
 
     @cached_property
     def count_parameters(self):
