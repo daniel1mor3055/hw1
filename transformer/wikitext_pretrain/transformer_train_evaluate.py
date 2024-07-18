@@ -44,7 +44,7 @@ def evaluate(model, dataloader, criterion, device, logger, use_wandb):
             target_texts = texts[:, 1:]
 
             output = model(input_texts)
-            loss = criterion(output.view(-1, output.size(-1)), target_texts.view(-1))
+            loss = criterion(output.reshape(-1, output.size(-1)), target_texts.reshape(-1))
             total_loss += loss.item()
 
             if batch_idx % 10 == 0:
