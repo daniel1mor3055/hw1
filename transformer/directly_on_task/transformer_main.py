@@ -4,7 +4,7 @@ import torch
 import wandb
 from torch import nn, optim
 
-from dataset import get_vocab, get_dataloaders
+from imdb_dataset import get_vocab, get_dataloaders
 from logger import setup_logger
 from transformer_train_evaluate import train, evaluate
 from transformer_model import CustomTransformerModel

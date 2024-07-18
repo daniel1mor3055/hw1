@@ -1,12 +1,13 @@
 import datetime
+
 import torch
-import wandb
 from torch import nn, optim
 
-from wikitext_dataset import get_vocab, get_dataloaders
+import wandb
 from logger import setup_logger
-from transformer.wikitext_pretrain.transformer_train_evaluate import train, evaluate
-from transformer.wikitext_pretrain.transformer_model import CustomTransformerModel
+from transformer_model import CustomTransformerModel
+from transformer_train_evaluate import train, evaluate
+from wikitext_dataset import get_vocab, get_dataloaders
 
 run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_transformer_wikitext_pretrain"
 
@@ -81,6 +82,11 @@ for epoch in range(n_epochs):
             "train_loss": train_loss,
             "test_loss": test_loss
         })
+
+# Save the model checkpoint
+checkpoint_path = "transformer_wikitext_pretrained.pth"
+torch.save(model.state_dict(), checkpoint_path)
+logger.info(f"Checkpoint saved at {checkpoint_path}")
 
 logger.info("Training completed.")
 if use_wandb:
