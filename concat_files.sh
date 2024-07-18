@@ -38,3 +38,5 @@ concatenate_files() {
 concatenate_files "."
 
 echo "All Python files have been concatenated into $OUTPUT_FILE."
+
+cat concatenated_project.txt | pbcopy
