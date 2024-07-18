@@ -4,10 +4,10 @@ import torch
 import wandb
 from torch import nn, optim
 
-from imdb_dataset import get_vocab, get_dataloaders
 from logger import setup_logger
-from lstm_model import CustomLSTMModel
-from lstm_train_evaluate import train, evaluate
+from lstm.directly_on_task.imdb_dataset import get_vocab, get_dataloaders
+from lstm.directly_on_task.lstm_model import CustomLSTMModel
+from lstm.directly_on_task.lstm_train_evaluate import train, evaluate
 
 run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_lstm_directly_on_task"
 

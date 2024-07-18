@@ -4,11 +4,12 @@ import torch
 from torch import nn, optim
 
 import wandb
-from imdb_dataset import get_vocab as get_imdb_vocab, get_dataloaders as get_imdb_dataloaders
 from logger import setup_logger
-from transformer_model import CustomTransformerModel
-from transformer_finetune_train_evaluate import train, evaluate
-from wikitext_dataset import get_vocab
+from transformer.wikitext_pretrain.imdb_dataset import get_vocab as get_imdb_vocab, \
+    get_dataloaders as get_imdb_dataloaders
+from transformer.wikitext_pretrain.transformer_finetune_train_evaluate import train, evaluate
+from transformer.wikitext_pretrain.transformer_model import CustomTransformerModel
+from transformer.wikitext_pretrain.wikitext_dataset import get_vocab
 
 run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_transformer_finetune_imdb"
 
