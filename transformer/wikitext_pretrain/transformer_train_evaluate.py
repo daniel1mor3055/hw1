@@ -6,7 +6,7 @@ import wandb
 def train(model, dataloader, criterion, optimizer, device, epoch, logger, use_wandb):
     model.train()
     total_loss = 0
-    for batch_idx, (labels, texts) in enumerate(dataloader):
+    for batch_idx, texts in enumerate(dataloader):
         texts = texts.to(device)
         optimizer.zero_grad()
 
@@ -21,7 +21,7 @@ def train(model, dataloader, criterion, optimizer, device, epoch, logger, use_wa
 
         if batch_idx % 10 == 0:
             logger.info(
-                f"Train Epoch: {epoch + 1} [{batch_idx * len(labels)}/{len(dataloader.dataset)} "
+                f"Train Epoch: {epoch + 1} [{batch_idx * len(texts)}/{len(dataloader.dataset)} "
                 f"({100. * batch_idx / len(dataloader):.0f}%)]\tLoss: {loss.item():.6f}"
             )
             if use_wandb:
@@ -36,8 +36,8 @@ def evaluate(model, dataloader, criterion, device, logger, use_wandb):
     model.eval()
     total_loss = 0
     with torch.no_grad():
-        for batch_idx, (labels, texts) in enumerate(dataloader):
-            labels, texts = labels.to(device), texts.to(device)
+        for batch_idx, texts in enumerate(dataloader):
+            texts = texts.to(device)
 
             # Shift the target texts by one time step for the decoder input
             input_texts = texts[:, :-1]
