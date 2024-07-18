@@ -1,27 +1,44 @@
+from collections import Counter
+
 import torch
+from datasets import load_dataset
 from torch.nn.utils.rnn import pad_sequence
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 from torchtext.data.utils import get_tokenizer
-from torchtext.datasets import WikiText2
-from torchtext.vocab import build_vocab_from_iterator
 
 tokenizer = get_tokenizer("basic_english")
 
 
-def yield_tokens(data_iter):
-    for _, text in data_iter:
-        yield tokenizer(text)
+class WikiTextDataset(Dataset):
+    def __init__(self, split, vocab):
+        self.dataset = load_dataset("Salesforce/wikitext", "wikitext-2-v1", split=split)
+        self.vocab = vocab
+
+    def __len__(self):
+        return len(self.dataset)
+
+    def __getitem__(self, idx):
+        return self.dataset[idx]["text"]
+
+
+def build_vocab(data_iter):
+    counter = Counter()
+    for text in data_iter:
+        counter.update(tokenizer(text))
+    return counter
 
 
 def get_vocab():
-    train_iter = WikiText2(split="train")
-    vocab = build_vocab_from_iterator(yield_tokens(train_iter), specials=["<unk>"])
-    vocab.set_default_index(vocab["<unk>"])
+    train_iter = load_dataset("Salesforce/wikitext", "wikitext-2-v1", split="train")["text"]
+    vocab_counter = build_vocab(train_iter)
+    vocab = {token: idx for idx, (token, _) in enumerate(vocab_counter.items(), start=2)}
+    vocab["<unk>"] = 0
+    vocab["<pad>"] = 1
     return vocab
 
 
 def text_pipeline(text, vocab):
-    return vocab(tokenizer(text))
+    return [vocab.get(token, vocab["<unk>"]) for token in tokenizer(text)]
 
 
 def collate_batch(batch, vocab):
@@ -29,19 +46,21 @@ def collate_batch(batch, vocab):
     for _text in batch:
         processed_text = torch.tensor(text_pipeline(_text, vocab), dtype=torch.int64)
         text_list.append(processed_text)
-    return pad_sequence(text_list, padding_value=vocab["<unk>"], batch_first=True)
+    return pad_sequence(text_list, padding_value=vocab["<pad>"], batch_first=True)
 
 
 def get_dataloaders(batch_size, vocab):
-    train_iter, test_iter = WikiText2(split="train"), WikiText2(split="test")
+    train_dataset = WikiTextDataset(split="train", vocab=vocab)
+    test_dataset = WikiTextDataset(split="test", vocab=vocab)
+
     train_dataloader = DataLoader(
-        list(train_iter),
+        train_dataset,
         batch_size=batch_size,
         shuffle=True,
         collate_fn=lambda x: collate_batch(x, vocab),
     )
     test_dataloader = DataLoader(
-        list(test_iter),
+        test_dataset,
         batch_size=batch_size,
         shuffle=True,
         collate_fn=lambda x: collate_batch(x, vocab),

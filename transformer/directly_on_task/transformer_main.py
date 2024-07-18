@@ -6,8 +6,8 @@ from torch import nn, optim
 
 from dataset import get_vocab, get_dataloaders
 from logger import setup_logger
-from transformer.directly_on_task.transformer_train_evaluate import train, evaluate
-from transformer.directly_on_task.transformer_model import CustomTransformerModel
+from transformer_train_evaluate import train, evaluate
+from transformer_model import CustomTransformerModel
 
 run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_transformer_directly_on_task"
 
