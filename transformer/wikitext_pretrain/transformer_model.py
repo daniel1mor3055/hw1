@@ -82,7 +82,7 @@ class TransformerBlock(nn.Module):
 
 
 class CustomTransformerModel(nn.Module):
-    def __init__(self, vocab_size, embed_dim, num_heads, num_layers, ff_hidden_dim, dropout=0.1):
+    def __init__(self, vocab_size, embed_dim, num_heads, num_layers, ff_hidden_dim, dropout=0.1, finetune=False):
         super(CustomTransformerModel, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embed_dim)
         self.positional_encoding = PositionalEncoding(embed_dim)
@@ -90,6 +90,7 @@ class CustomTransformerModel(nn.Module):
             TransformerBlock(embed_dim, num_heads, ff_hidden_dim, dropout)
             for _ in range(num_layers)])
         self.fc_out = nn.Linear(embed_dim, vocab_size)
+        self.finetune = finetune
 
     def generate_square_subsequent_mask(self, sz):
         mask = (torch.triu(torch.ones(sz, sz)) == 1).T
@@ -103,8 +104,13 @@ class CustomTransformerModel(nn.Module):
         x = self.positional_encoding(x)
         for transformer_block in self.transformer_blocks:
             x = transformer_block(x, mask)
-        x = self.fc_out(x)
-        return x.squeeze(2)
+        if self.finetune:
+            x = x.mean(dim=1)
+            x = self.fc_out(x)
+            return x.squeeze(1)
+        else:
+            x = self.fc_out(x)
+            return x.squeeze(2)
 
     @cached_property
     def count_parameters(self):

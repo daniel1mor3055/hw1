@@ -12,7 +12,7 @@ tokenizer = get_tokenizer("basic_english")
 class WikiTextDataset(Dataset):
     def __init__(self, split, vocab):
         # TODO - remove .select(range(100))
-        self.dataset = load_dataset("Salesforce/wikitext", "wikitext-2-v1", split=split).select(range(100))
+        self.dataset = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split=split).select(range(100))
         self.vocab = vocab
 
     def __len__(self):
@@ -30,7 +30,7 @@ def build_vocab(data_iter):
 
 
 def get_vocab():
-    train_iter = load_dataset("Salesforce/wikitext", "wikitext-2-v1", split="train")["text"]
+    train_iter = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split="train")["text"]
     vocab_counter = build_vocab(train_iter)
     vocab = {token: idx for idx, (token, _) in enumerate(vocab_counter.items(), start=2)}
     vocab["<unk>"] = 0

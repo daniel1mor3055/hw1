@@ -1,3 +1,7 @@
 migrate torchtext to datasets
 
 wandb only once
+
+model configuration for pretrain + finetune should be the same
+
+remove select

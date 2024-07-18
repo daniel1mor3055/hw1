@@ -7,7 +7,8 @@ import wandb
 from imdb_dataset import get_vocab as get_imdb_vocab, get_dataloaders as get_imdb_dataloaders
 from logger import setup_logger
 from transformer_model import CustomTransformerModel
-from transformer_train_evaluate import train, evaluate
+from transformer_finetune_train_evaluate import train, evaluate
+from wikitext_dataset import get_vocab
 
 run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_transformer_finetune_imdb"
 
@@ -25,15 +26,16 @@ logger = setup_logger(__name__)
 # Hyperparameters
 batch_size = 8
 embed_dim = 64
-num_heads = 2
-num_layers = 16
-ff_hidden_dim = 768
-n_epochs = 2
+num_heads = 1
+num_layers = 2
+ff_hidden_dim = 128
+n_epochs = 1
 learning_rate = 0.001
 
 # Load vocab and data loaders for IMDB
-vocab = get_imdb_vocab()
-train_dataloader, test_dataloader = get_imdb_dataloaders(batch_size, vocab)
+vocab = get_vocab()
+imdb_vocab = get_imdb_vocab()
+train_dataloader, test_dataloader = get_imdb_dataloaders(batch_size, imdb_vocab)
 
 # Initialize model, criterion, and optimizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -43,7 +45,8 @@ model = CustomTransformerModel(
     embed_dim=embed_dim,
     num_heads=num_heads,
     num_layers=num_layers,
-    ff_hidden_dim=ff_hidden_dim
+    ff_hidden_dim=ff_hidden_dim,
+    finetune=True
 ).to(device)
 
 # Load the pretrained weights
