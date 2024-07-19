@@ -5,13 +5,13 @@ from torch import nn, optim
 
 import wandb
 from logger import setup_logger
-from transformer.wikitext_pretrain.imdb_dataset import get_vocab as get_imdb_vocab, \
+from transformer.lra_pretrain.imdb_dataset import get_vocab as get_imdb_vocab, \
     get_dataloaders as get_imdb_dataloaders
-from transformer.wikitext_pretrain.transformer_finetune_train_evaluate import train, evaluate
-from transformer.wikitext_pretrain.transformer_model import CustomTransformerModel
-from transformer.wikitext_pretrain.wikitext_dataset import get_vocab
+from transformer.lra_pretrain.transformer_finetune_train_evaluate import train, evaluate
+from transformer.lra_pretrain.transformer_model import CustomTransformerModel
+from transformer.lra_pretrain.imdb_dataset import get_vocab
 
-run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_transformer_finetune_imdb"
+run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_transformer_lra_pretrain_imdb_finetune"
 
 # Toggle WandB
 use_wandb = False
@@ -51,7 +51,7 @@ model = CustomTransformerModel(
 ).to(device)
 
 # Load the pretrained weights
-checkpoint_path = "transformer_wikitext_pretrained.pth"
+checkpoint_path = "transformer_lra_pretrained.pth"
 model.load_state_dict(torch.load(checkpoint_path))
 logger.info(f"Checkpoint loaded from {checkpoint_path}")
 

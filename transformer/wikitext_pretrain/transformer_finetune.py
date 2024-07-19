@@ -11,7 +11,7 @@ from transformer.wikitext_pretrain.transformer_finetune_train_evaluate import tr
 from transformer.wikitext_pretrain.transformer_model import CustomTransformerModel
 from transformer.wikitext_pretrain.wikitext_dataset import get_vocab
 
-run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_transformer_finetune_imdb"
+run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_transformer_wikitext_pretrain_imdb_finetune"
 
 # Toggle WandB
 use_wandb = False

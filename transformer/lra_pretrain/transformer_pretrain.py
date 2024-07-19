@@ -5,11 +5,11 @@ from torch import nn, optim
 
 import wandb
 from logger import setup_logger
-from transformer.wikitext_pretrain.transformer_model import CustomTransformerModel
-from transformer.wikitext_pretrain.transformer_pretrain_train_evaluate import train, evaluate
-from transformer.wikitext_pretrain.wikitext_dataset import get_vocab, get_dataloaders
+from transformer.lra_pretrain.transformer_model import CustomTransformerModel
+from transformer.lra_pretrain.transformer_pretrain_train_evaluate import train, evaluate
+from transformer.lra_pretrain.imdb_dataset import get_vocab, get_dataloaders
 
-run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_transformer_wikitext_pretrain"
+run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_transformer_lra_pretrain"
 
 # Toggle WandB
 use_wandb = False
@@ -84,7 +84,7 @@ for epoch in range(n_epochs):
         })
 
 # Save the model checkpoint
-checkpoint_path = "transformer_wikitext_pretrained.pth"
+checkpoint_path = "transformer_lra_pretrained.pth"
 torch.save(model.state_dict(), checkpoint_path)
 logger.info(f"Checkpoint saved at {checkpoint_path}")
 

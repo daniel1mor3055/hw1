@@ -10,7 +10,7 @@ from lstm.wikitext_pretrain.lstm_finetune_train_evaluate import train, evaluate
 from lstm.wikitext_pretrain.lstm_model import CustomLSTMModel
 from lstm.wikitext_pretrain.wikitext_dataset import get_vocab
 
-run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_lstm_finetune_imdb"
+run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_lstm_wikitext_pretrain_finetune_imdb"
 
 # Toggle WandB
 use_wandb = False
