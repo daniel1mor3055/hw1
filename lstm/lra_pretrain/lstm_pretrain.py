@@ -5,11 +5,11 @@ import wandb
 from torch import nn, optim
 
 from logger import setup_logger
-from lstm.wikitext_pretrain.lstm_model import CustomLSTMModel
-from lstm.wikitext_pretrain.lstm_pretrain_train_evaluate import train, evaluate
-from lstm.wikitext_pretrain.wikitext_dataset import get_vocab, get_dataloaders
+from lstm.lra_pretrain.lstm_model import CustomLSTMModel
+from lstm.lra_pretrain.lstm_pretrain_train_evaluate import train, evaluate
+from lstm.lra_pretrain.imdb_dataset import get_vocab, get_dataloaders
 
-run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_lstm_wikitext_pretrain"
+run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_lstm_lra_pretrain"
 
 # Toggle WandB
 use_wandb = False
@@ -48,7 +48,7 @@ model = CustomLSTMModel(
 
 # TODO - creates dummy lstm_wikitext_pretrained.pth, remove in real training
 # Save the model state dict
-checkpoint_path = "lstm_wikitext_pretrained.pth"
+checkpoint_path = "lstm_lra_pretrained.pth"
 torch.save(model.state_dict(), checkpoint_path)
 print(f"Dummy checkpoint saved at {checkpoint_path}")
 # TODO - dummy ends here

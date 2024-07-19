@@ -5,12 +5,11 @@ import wandb
 from torch import nn, optim
 
 from logger import setup_logger
-from lstm.wikitext_pretrain.imdb_dataset import get_vocab as get_imdb_vocab, get_dataloaders as get_imdb_dataloaders
-from lstm.wikitext_pretrain.lstm_finetune_train_evaluate import train, evaluate
-from lstm.wikitext_pretrain.lstm_model import CustomLSTMModel
-from lstm.wikitext_pretrain.wikitext_dataset import get_vocab
+from lstm.lra_pretrain.imdb_dataset import get_vocab as get_imdb_vocab, get_dataloaders as get_imdb_dataloaders
+from lstm.lra_pretrain.lstm_finetune_train_evaluate import train, evaluate
+from lstm.lra_pretrain.lstm_model import CustomLSTMModel
 
-run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_lstm_wikitext_pretrain_finetune_imdb"
+run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_lstm_lra_pretrain_finetune_imdb"
 
 # Toggle WandB
 use_wandb = False
@@ -49,7 +48,7 @@ model = CustomLSTMModel(
 ).to(device)
 
 # Load the pretrained weights
-checkpoint_path = "lstm_wikitext_pretrained.pth"
+checkpoint_path = "lstm_lra_pretrained.pth"
 model.load_state_dict(torch.load(checkpoint_path))
 logger.info(f"Checkpoint loaded from {checkpoint_path}")
 
