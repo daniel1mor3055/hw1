@@ -5,13 +5,12 @@ from torch import nn, optim
 
 import wandb
 from logger import setup_logger
-from transformer.wikitext_pretrain.imdb_dataset import get_vocab as get_imdb_vocab, \
-    get_dataloaders as get_imdb_dataloaders
-from transformer.wikitext_pretrain.transformer_finetune_train_evaluate import train, evaluate
-from transformer.wikitext_pretrain.transformer_model import CustomTransformerModel
-from transformer.wikitext_pretrain.wikitext_dataset import get_vocab
+from lstm.wikitext_pretrain.imdb_dataset import get_vocab as get_imdb_vocab, get_dataloaders as get_imdb_dataloaders
+from lstm.wikitext_pretrain.lstm_finetune_train_evaluate import train, evaluate
+from lstm.wikitext_pretrain.lstm_model import CustomLSTMModel
+from lstm.wikitext_pretrain.wikitext_dataset import get_vocab
 
-run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_transformer_finetune_imdb"
+run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_lstm_finetune_imdb"
 
 # Toggle WandB
 use_wandb = False
@@ -27,10 +26,10 @@ logger = setup_logger(__name__)
 # Hyperparameters
 batch_size = 8
 embed_dim = 64
-num_heads = 1
-num_layers = 2
-ff_hidden_dim = 128
-n_epochs = 1
+hidden_dim = 768
+output_dim = 1
+num_layers = 1
+n_epochs = 2
 learning_rate = 0.001
 
 # Load vocab and data loaders for IMDB
@@ -41,22 +40,23 @@ train_dataloader, test_dataloader = get_imdb_dataloaders(batch_size, imdb_vocab)
 # Initialize model, criterion, and optimizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 vocab_size = len(vocab)
-model = CustomTransformerModel(
+model = CustomLSTMModel(
     vocab_size=vocab_size,
     embed_dim=embed_dim,
-    num_heads=num_heads,
-    num_layers=num_layers,
-    ff_hidden_dim=ff_hidden_dim,
-    finetune=True
+    hidden_dim=hidden_dim,
+    output_dim=output_dim,
+    num_layers=num_layers
 ).to(device)
 
 # Load the pretrained weights
-checkpoint_path = "transformer_wikitext_pretrained.pth"
+checkpoint_path = "lstm_wikitext_pretrained.pth"
 model.load_state_dict(torch.load(checkpoint_path))
 logger.info(f"Checkpoint loaded from {checkpoint_path}")
 
 # Replace the final layer
-model.fc_out = nn.Linear(embed_dim, 1).to(device)
+model.Wy = nn.Parameter(torch.empty(output_dim, hidden_dim).to(device))
+model.by = nn.Parameter(torch.zeros(output_dim, 1).to(device))
+nn.init.xavier_uniform_(model.Wy)
 
 criterion = nn.BCEWithLogitsLoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
@@ -70,12 +70,11 @@ if use_wandb:
             "run_name": run_name,
             "batch_size": batch_size,
             "embed_dim": embed_dim,
-            "num_heads": num_heads,
-            "num_layers": num_layers,
-            "ff_hidden_dim": ff_hidden_dim,
+            "hidden_dim": hidden_dim,
+            "output_dim": output_dim,
             "n_epochs": n_epochs,
             "learning_rate": learning_rate,
-            "model": "CustomTransformerModel",
+            "model": "CustomLSTMModel",
             "parameter_cnt": model.count_parameters,
         }
     )
