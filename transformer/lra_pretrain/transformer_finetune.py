@@ -5,9 +5,7 @@ import wandb
 from torch import nn, optim
 
 from logger import setup_logger
-from transformer.lra_pretrain.imdb_dataset import get_vocab
-from transformer.lra_pretrain.imdb_dataset import get_vocab as get_imdb_vocab, \
-    get_dataloaders as get_imdb_dataloaders
+from transformer.lra_pretrain.imdb_dataset import get_vocab, get_dataloaders
 from transformer.lra_pretrain.transformer_finetune_train_evaluate import train, evaluate
 from transformer.lra_pretrain.transformer_model import CustomTransformerModel
 
@@ -35,8 +33,7 @@ learning_rate = 0.001
 
 # Load vocab and data loaders for IMDB
 vocab = get_vocab()
-imdb_vocab = get_imdb_vocab()
-train_dataloader, test_dataloader = get_imdb_dataloaders(batch_size, imdb_vocab)
+train_dataloader, test_dataloader = get_dataloaders(batch_size, vocab)
 
 # Initialize model, criterion, and optimizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
