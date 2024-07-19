@@ -16,7 +16,7 @@ use_wandb = False
 
 if use_wandb:
     # Initialize WandB
-    wandb.login(key="your_wandb_api_key_here")
+    wandb.login(key="5fda0926085bc8963be5e43c4e501d992e35abe8")
     wandb.init(project="model-comparison", name=run_name)
 
 # Setup logging
