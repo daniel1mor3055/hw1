@@ -1,9 +1,9 @@
 import datetime
 
 import torch
+import wandb
 from torch import nn, optim
 
-import wandb
 from logger import setup_logger
 from lstm.wikitext_pretrain.lstm_model import CustomLSTMModel
 from lstm.wikitext_pretrain.lstm_pretrain_train_evaluate import train, evaluate

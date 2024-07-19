@@ -1,9 +1,9 @@
 import datetime
 
 import torch
+import wandb
 from torch import nn, optim
 
-import wandb
 from logger import setup_logger
 from lstm.wikitext_pretrain.imdb_dataset import get_vocab as get_imdb_vocab, get_dataloaders as get_imdb_dataloaders
 from lstm.wikitext_pretrain.lstm_finetune_train_evaluate import train, evaluate

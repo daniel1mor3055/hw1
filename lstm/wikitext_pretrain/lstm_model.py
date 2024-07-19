@@ -3,6 +3,7 @@ from functools import cached_property
 import torch
 from torch import nn
 
+
 class CustomLSTMModel(nn.Module):
     def __init__(self, vocab_size, embed_dim, hidden_dim, output_dim, num_layers):
         super(CustomLSTMModel, self).__init__()
@@ -50,6 +51,7 @@ class CustomLSTMModel(nn.Module):
     @cached_property
     def count_parameters(self):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
+
 
 class LSTMLayer(nn.Module):
     def __init__(self, input_dim, hidden_dim):
