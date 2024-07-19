@@ -41,7 +41,7 @@ class CustomLSTMModel(nn.Module):
         ]
 
         if not self.finetune:
-            y = torch.zeros(seq_len, batch_size, self.vocab_size).to(texts.device) # (seq_len, batch_size, vocab_size)
+            y = torch.zeros(seq_len, batch_size, self.vocab_size).to(texts.device)  # (seq_len, batch_size, vocab_size)
             for t in range(seq_len):
                 x = embedded[t, :, :]  # (embed_dim, batch_size)
                 for i, layer in enumerate(self.layers):

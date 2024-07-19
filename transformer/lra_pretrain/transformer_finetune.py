@@ -1,15 +1,15 @@
 import datetime
 
 import torch
+import wandb
 from torch import nn, optim
 
-import wandb
 from logger import setup_logger
+from transformer.lra_pretrain.imdb_dataset import get_vocab
 from transformer.lra_pretrain.imdb_dataset import get_vocab as get_imdb_vocab, \
     get_dataloaders as get_imdb_dataloaders
 from transformer.lra_pretrain.transformer_finetune_train_evaluate import train, evaluate
 from transformer.lra_pretrain.transformer_model import CustomTransformerModel
-from transformer.lra_pretrain.imdb_dataset import get_vocab
 
 run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_transformer_lra_pretrain_imdb_finetune"
 

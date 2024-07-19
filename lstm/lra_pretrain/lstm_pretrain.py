@@ -5,9 +5,9 @@ import wandb
 from torch import nn, optim
 
 from logger import setup_logger
+from lstm.lra_pretrain.imdb_dataset import get_vocab, get_dataloaders
 from lstm.lra_pretrain.lstm_model import CustomLSTMModel
 from lstm.lra_pretrain.lstm_pretrain_train_evaluate import train, evaluate
-from lstm.lra_pretrain.imdb_dataset import get_vocab, get_dataloaders
 
 run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_lstm_lra_pretrain"
 
