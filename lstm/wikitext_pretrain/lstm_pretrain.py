@@ -46,6 +46,13 @@ model = CustomLSTMModel(
     num_layers=num_layers
 ).to(device)
 
+# TODO - creates dummy lstm_wikitext_pretrained.pth, remove in real training
+# Save the model state dict
+checkpoint_path = "lstm_wikitext_pretrained.pth"
+torch.save(model.state_dict(), checkpoint_path)
+print(f"Dummy checkpoint saved at {checkpoint_path}")
+# TODO - dummy ends here
+
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
