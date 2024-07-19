@@ -1,3 +1,5 @@
+import os
+import pickle
 from collections import Counter
 
 import torch
@@ -29,11 +31,25 @@ def build_vocab(data_iter):
 
 
 def get_vocab():
-    train_iter = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split="train")["text"]
-    vocab_counter = build_vocab(train_iter)
-    vocab = {token: idx for idx, (token, _) in enumerate(vocab_counter.items(), start=2)}
-    vocab["<unk>"] = 0
-    vocab["<pad>"] = 1
+    vocab_file = "vocab.pkl"
+
+    # Check if the vocab file already exists
+    if os.path.exists(vocab_file):
+        with open(vocab_file, 'rb') as f:
+            vocab = pickle.load(f)
+        print("Vocabulary loaded from file.")
+    else:
+        train_iter = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split="train")["text"]
+        vocab_counter = build_vocab(train_iter)
+        vocab = {token: idx for idx, (token, _) in enumerate(vocab_counter.items(), start=2)}
+        vocab["<unk>"] = 0
+        vocab["<pad>"] = 1
+
+        # Save the vocab to a file
+        with open(vocab_file, 'wb') as f:
+            pickle.dump(vocab, f)
+        print("Vocabulary built and saved to file.")
+
     return vocab
 
 
