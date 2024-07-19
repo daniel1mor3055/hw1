@@ -22,17 +22,18 @@ if use_wandb:
 # Setup logging
 logger = setup_logger(__name__)
 
+vocab = get_vocab()
+
 # Hyperparameters
 batch_size = 8
 embed_dim = 64
 hidden_dim = 768
-output_dim = len(get_vocab())
+output_dim = len(vocab)
 num_layers = 1
 n_epochs = 2
 learning_rate = 0.001
 
 # Load vocab and data loaders
-vocab = get_vocab()
 train_dataloader, test_dataloader = get_dataloaders(batch_size, vocab)
 
 # Initialize model, criterion, and optimizer
