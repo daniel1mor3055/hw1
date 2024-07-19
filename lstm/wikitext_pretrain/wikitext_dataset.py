@@ -11,7 +11,6 @@ tokenizer = get_tokenizer("basic_english")
 
 class WikiTextDataset(Dataset):
     def __init__(self, split, vocab):
-        # TODO - remove .select(range(100))
         self.dataset = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split=split).select(range(100))
         self.vocab = vocab
 
