@@ -1,3 +1,7 @@
+go over permutes!
+
+investigate einsum function
+
 migrate torchtext to datasets
 
 wandb only once
@@ -5,3 +9,4 @@ wandb only once
 model configuration for pretrain + finetune should be the same
 
 remove select
+

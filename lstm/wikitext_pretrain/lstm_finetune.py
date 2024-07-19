@@ -45,7 +45,8 @@ model = CustomLSTMModel(
     embed_dim=embed_dim,
     hidden_dim=hidden_dim,
     output_dim=output_dim,
-    num_layers=num_layers
+    num_layers=num_layers,
+    finetune=True
 ).to(device)
 
 # Load the pretrained weights

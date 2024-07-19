@@ -5,12 +5,14 @@ from torch import nn
 
 
 class CustomLSTMModel(nn.Module):
-    def __init__(self, vocab_size, embed_dim, hidden_dim, output_dim, num_layers):
+    def __init__(self, vocab_size, embed_dim, hidden_dim, output_dim, num_layers, finetune=False):
         super(CustomLSTMModel, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embed_dim)
         self.hidden_dim = hidden_dim
         self.input_dim = embed_dim
         self.num_layers = num_layers
+        self.vocab_size = vocab_size
+        self.finetune = finetune
 
         # Create layers
         self.layers = nn.ModuleList()
@@ -38,15 +40,27 @@ class CustomLSTMModel(nn.Module):
             for _ in range(self.num_layers)
         ]
 
-        for t in range(seq_len):
-            x = embedded[t, :, :]  # (embed_dim, batch_size)
-            for i, layer in enumerate(self.layers):
-                h[i], c[i] = layer(x, h[i], c[i])
-                x = h[i]
+        if not self.finetune:
+            y = torch.zeros(seq_len, batch_size, self.vocab_size).to(texts.device) # (seq_len, batch_size, vocab_size)
+            for t in range(seq_len):
+                x = embedded[t, :, :]  # (embed_dim, batch_size)
+                for i, layer in enumerate(self.layers):
+                    h[i], c[i] = layer(x, h[i], c[i])
+                    x = h[i]
+                h_last = h[-1].permute(1, 0)  # (batch_size, hidden_dim)
+                y[t] = torch.matmul(h_last, self.Wy.t()) + self.by.t()  # (batch_size, vocab_size)
 
-        h_last = h[-1].permute(1, 0)  # (batch_size, hidden_dim)
-        y = torch.matmul(h_last, self.Wy.t()) + self.by.t()  # (batch_size, output_dim)
-        return y.squeeze(1)
+            return y
+        else:
+            for t in range(seq_len):
+                x = embedded[t, :, :]  # (embed_dim, batch_size)
+                for i, layer in enumerate(self.layers):
+                    h[i], c[i] = layer(x, h[i], c[i])
+                    x = h[i]
+
+            h_last = h[-1].permute(1, 0)  # (batch_size, hidden_dim)
+            y = torch.matmul(h_last, self.Wy.t()) + self.by.t()  # (batch_size, output_dim)
+            return y.squeeze(1)
 
     @cached_property
     def count_parameters(self):
