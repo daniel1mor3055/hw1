@@ -6,7 +6,7 @@ from torch import nn, optim
 
 from logger import setup_logger
 from s4.lra_pretrain.imdb_dataset import get_vocab, get_dataloaders
-from s4.lra_pretrain.s4_model import CustomLSTMModel
+from s4.lra_pretrain.s4_model import S4Model
 from s4.lra_pretrain.s4_pretrain_train_evaluate import train, evaluate
 
 run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_s4_lra_pretrain"
@@ -39,11 +39,12 @@ train_dataloader, test_dataloader = get_dataloaders(batch_size, vocab)
 # Initialize model, criterion, and optimizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 vocab_size = len(vocab)
-model = CustomLSTMModel(
+model = S4Model(
+    d_input=embed_dim,
     vocab_size=vocab_size,
-    embed_dim=embed_dim,
-    hidden_dim=hidden_dim,
-    num_layers=num_layers
+    d_model=hidden_dim,
+    n_layers=num_layers,
+    dropout=0.1
 ).to(device)
 
 # TODO - creates dummy lstm_wikitext_pretrained.pth, remove in real training
