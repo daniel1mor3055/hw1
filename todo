@@ -4,11 +4,13 @@ investigate einsum function
 
 migrate torchtext to datasets
 
+remove dummy stuff
+
 wandb only once
 
 model configuration for pretrain + finetune should be the same
 
-remove select
+remove select minimizing dataset
 
 context manager pickle get_vocab()
 
