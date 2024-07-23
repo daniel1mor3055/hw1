@@ -15,3 +15,7 @@ remove select minimizing dataset
 context manager pickle get_vocab()
 
 prints to logs
+
+can remove output dim from mains that do not use output
+
+can squeeze files and unite code (reusable)

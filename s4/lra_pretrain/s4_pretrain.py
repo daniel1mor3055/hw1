@@ -70,7 +70,7 @@ if use_wandb:
             "output_dim": vocab_size,
             "n_epochs": n_epochs,
             "learning_rate": learning_rate,
-            "model": "CustomLSTMModel",
+            "model": "S4Model",
             "parameter_cnt": model.count_parameters,
         }
     )
