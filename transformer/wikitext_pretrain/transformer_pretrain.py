@@ -1,9 +1,9 @@
 import datetime
 
 import torch
+import wandb
 from torch import nn, optim
 
-import wandb
 from logger import setup_logger
 from transformer.wikitext_pretrain.transformer_model import CustomTransformerModel
 from transformer.wikitext_pretrain.transformer_pretrain_train_evaluate import train, evaluate
