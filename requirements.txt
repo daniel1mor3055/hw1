@@ -2,3 +2,7 @@ torch==2.3.1
 datasets==2.20.0
 wandb==0.17.4
 einops==0.8.0
+transformers==4.43.2
+torchtext==0.18.0
+torchdata==0.7.1
+portalocker==2.10.1
