@@ -24,8 +24,8 @@ logger = setup_logger(__name__)
 
 # Hyperparameters
 batch_size = 8
-embed_dim = 64
-hidden_dim = 768
+embed_dim = 8
+hidden_dim = 16
 output_dim = 1
 num_layers = 1
 n_epochs = 2

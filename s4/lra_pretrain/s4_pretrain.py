@@ -26,8 +26,8 @@ vocab = get_vocab()
 
 # Hyperparameters
 batch_size = 8
-embed_dim = 64
-hidden_dim = 768
+embed_dim = 8
+hidden_dim = 16
 output_dim = len(vocab)
 num_layers = 1
 n_epochs = 2

@@ -24,10 +24,10 @@ logger = setup_logger(__name__)
 
 # Hyperparameters
 batch_size = 8
-embed_dim = 64
-num_heads = 2
-num_layers = 16
-ff_hidden_dim = 768
+embed_dim = 8
+num_heads = 1
+num_layers = 1
+ff_hidden_dim = 16
 output_dim = 1
 n_epochs = 2
 learning_rate = 0.001
