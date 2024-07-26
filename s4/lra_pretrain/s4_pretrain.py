@@ -5,7 +5,7 @@ import wandb
 from torch import nn, optim
 
 from logger import setup_logger
-from s4.lra_pretrain.imdb_dataset import get_vocab, get_dataloaders
+from s4.lra_pretrain.imdb_dataset import get_tokenizer_and_vocab, get_dataloaders
 from s4.lra_pretrain.s4_model import S4Model
 from s4.lra_pretrain.s4_pretrain_train_evaluate import train, evaluate
 
@@ -22,23 +22,21 @@ if use_wandb:
 # Setup logging
 logger = setup_logger(__name__)
 
-vocab = get_vocab()
-
 # Hyperparameters
 batch_size = 8
 embed_dim = 8
 hidden_dim = 16
-output_dim = len(vocab)
 num_layers = 1
 n_epochs = 2
 learning_rate = 0.001
 
 # Load vocab and data loaders
-train_dataloader, test_dataloader = get_dataloaders(batch_size, vocab)
+tokenizer = get_tokenizer_and_vocab()
+train_dataloader, test_dataloader = get_dataloaders(batch_size, tokenizer)
 
 # Initialize model, criterion, and optimizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-vocab_size = len(vocab)
+vocab_size = len(tokenizer.get_vocab())
 model = S4Model(
     d_input=embed_dim,
     vocab_size=vocab_size,

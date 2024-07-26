@@ -1,20 +1,22 @@
 import os
-import pickle
-from collections import Counter
 
 import torch
 from datasets import load_dataset
+from tokenizers import Tokenizer, models, trainers, pre_tokenizers
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import DataLoader, Dataset
-from torchtext.data.utils import get_tokenizer
 
-tokenizer = get_tokenizer("basic_english")
+# Initialize BPE tokenizer
+tokenizer = Tokenizer(models.BPE())
+tokenizer.pre_tokenizer = pre_tokenizers.ByteLevel()
+
+trainer = trainers.BpeTrainer(vocab_size=10000, special_tokens=["<unk>", "<pad>", "<s>", "</s>"])
 
 
 class WikiTextDataset(Dataset):
-    def __init__(self, split, vocab):
+    def __init__(self, split, tokenizer):
         self.dataset = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split=split).select(range(100))
-        self.vocab = vocab
+        self.tokenizer = tokenizer
 
     def __len__(self):
         return len(self.dataset)
@@ -23,62 +25,55 @@ class WikiTextDataset(Dataset):
         return self.dataset[idx]["text"]
 
 
-def build_vocab(data_iter):
-    counter = Counter()
+def yield_texts(data_iter):
     for text in data_iter:
-        counter.update(tokenizer(text))
-    return counter
+        yield text
 
 
-def get_vocab():
-    vocab_file = "vocab.pkl"
+def get_tokenizer_and_vocab():
+    tokenizer_file = "tokenizer.json"
 
-    # Check if the vocab file already exists
-    if os.path.exists(vocab_file):
-        with open(vocab_file, 'rb') as f:
-            vocab = pickle.load(f)
-        print("Vocabulary loaded from file.")
-    else:
-        train_iter = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split="train")["text"]
-        vocab_counter = build_vocab(train_iter)
-        vocab = {token: idx for idx, (token, _) in enumerate(vocab_counter.items(), start=2)}
-        vocab["<unk>"] = 0
-        vocab["<pad>"] = 1
+    # Check if the tokenizer file already exists
+    if os.path.exists(tokenizer_file):
+        print("Tokenizer loaded from file.")
+        return Tokenizer.from_file(tokenizer_file)
 
-        # Save the vocab to a file
-        with open(vocab_file, 'wb') as f:
-            pickle.dump(vocab, f)
-        print("Vocabulary built and saved to file.")
+    train_iter = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split="train")["text"]
+    tokenizer.train_from_iterator(yield_texts(train_iter), trainer)
 
-    return vocab
+    # Save the tokenizer to a file
+    tokenizer.save(tokenizer_file)
+    print("Tokenizer trained and saved to file.")
+
+    return tokenizer
 
 
-def text_pipeline(text, vocab):
-    return [vocab.get(token, vocab["<unk>"]) for token in tokenizer(text)]
+def text_pipeline(text, tokenizer):
+    return tokenizer.encode(text).ids
 
 
-def collate_batch(batch, vocab):
+def collate_batch(batch, tokenizer):
     text_list = []
     for _text in batch:
-        processed_text = torch.tensor(text_pipeline(_text, vocab), dtype=torch.int64)
+        processed_text = torch.tensor(text_pipeline(_text, tokenizer), dtype=torch.int64)
         text_list.append(processed_text)
-    return pad_sequence(text_list, padding_value=vocab["<pad>"], batch_first=True)
+    return pad_sequence(text_list, padding_value=tokenizer.token_to_id("<pad>"), batch_first=True)
 
 
-def get_dataloaders(batch_size, vocab):
-    train_dataset = WikiTextDataset(split="train", vocab=vocab)
-    test_dataset = WikiTextDataset(split="test", vocab=vocab)
+def get_dataloaders(batch_size, tokenizer):
+    train_dataset = WikiTextDataset(split="train", tokenizer=tokenizer)
+    test_dataset = WikiTextDataset(split="test", tokenizer=tokenizer)
 
     train_dataloader = DataLoader(
         train_dataset,
         batch_size=batch_size,
         shuffle=True,
-        collate_fn=lambda x: collate_batch(x, vocab),
+        collate_fn=lambda x: collate_batch(x, tokenizer),
     )
     test_dataloader = DataLoader(
         test_dataset,
         batch_size=batch_size,
         shuffle=True,
-        collate_fn=lambda x: collate_batch(x, vocab),
+        collate_fn=lambda x: collate_batch(x, tokenizer),
     )
     return train_dataloader, test_dataloader

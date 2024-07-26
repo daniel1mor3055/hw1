@@ -7,7 +7,7 @@ from torch import nn, optim
 from logger import setup_logger
 from lstm.wikitext_pretrain.lstm_model import CustomLSTMModel
 from lstm.wikitext_pretrain.lstm_pretrain_train_evaluate import train, evaluate
-from lstm.wikitext_pretrain.wikitext_dataset import get_vocab, get_dataloaders
+from lstm.wikitext_pretrain.wikitext_dataset import get_tokenizer_and_vocab, get_dataloaders
 
 run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_lstm_wikitext_pretrain"
 
@@ -22,23 +22,21 @@ if use_wandb:
 # Setup logging
 logger = setup_logger(__name__)
 
-vocab = get_vocab()
-
 # Hyperparameters
 batch_size = 8
 embed_dim = 8
 hidden_dim = 16
-output_dim = len(vocab)
 num_layers = 1
 n_epochs = 2
 learning_rate = 0.001
 
 # Load vocab and data loaders
-train_dataloader, test_dataloader = get_dataloaders(batch_size, vocab)
+tokenizer = get_tokenizer_and_vocab()
+train_dataloader, test_dataloader = get_dataloaders(batch_size, tokenizer)
 
 # Initialize model, criterion, and optimizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-vocab_size = len(vocab)
+vocab_size = len(tokenizer.get_vocab())
 model = CustomLSTMModel(
     vocab_size=vocab_size,
     embed_dim=embed_dim,

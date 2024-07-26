@@ -5,11 +5,10 @@ import wandb
 from torch import nn, optim
 
 from logger import setup_logger
-from transformer.wikitext_pretrain.imdb_dataset import get_vocab as get_imdb_vocab, \
-    get_dataloaders as get_imdb_dataloaders
+from transformer.wikitext_pretrain.imdb_dataset import get_dataloaders as get_imdb_dataloaders
 from transformer.wikitext_pretrain.transformer_finetune_train_evaluate import train, evaluate
 from transformer.wikitext_pretrain.transformer_model import CustomTransformerModel
-from transformer.wikitext_pretrain.wikitext_dataset import get_vocab
+from transformer.wikitext_pretrain.wikitext_dataset import get_tokenizer_and_vocab
 
 run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_transformer_wikitext_pretrain_imdb_finetune"
 
@@ -34,13 +33,12 @@ n_epochs = 1
 learning_rate = 0.001
 
 # Load vocab and data loaders for IMDB
-vocab = get_vocab()
-imdb_vocab = get_imdb_vocab()
-train_dataloader, test_dataloader = get_imdb_dataloaders(batch_size, imdb_vocab)
+wikitext_tokenizer = get_tokenizer_and_vocab()
+train_dataloader, test_dataloader = get_imdb_dataloaders(batch_size, wikitext_tokenizer)
 
 # Initialize model, criterion, and optimizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-vocab_size = len(vocab)
+vocab_size = len(wikitext_tokenizer.get_vocab())
 model = CustomTransformerModel(
     vocab_size=vocab_size,
     embed_dim=embed_dim,

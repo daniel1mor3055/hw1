@@ -5,10 +5,10 @@ import wandb
 from torch import nn, optim
 
 from logger import setup_logger
-from lstm.wikitext_pretrain.imdb_dataset import get_vocab as get_imdb_vocab, get_dataloaders as get_imdb_dataloaders
+from lstm.wikitext_pretrain.imdb_dataset import get_dataloaders as get_imdb_dataloaders
 from lstm.wikitext_pretrain.lstm_finetune_train_evaluate import train, evaluate
 from lstm.wikitext_pretrain.lstm_model import CustomLSTMModel
-from lstm.wikitext_pretrain.wikitext_dataset import get_vocab
+from lstm.wikitext_pretrain.wikitext_dataset import get_tokenizer_and_vocab
 
 run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_lstm_wikitext_pretrain_finetune_imdb"
 
@@ -27,19 +27,17 @@ logger = setup_logger(__name__)
 batch_size = 8
 embed_dim = 8
 hidden_dim = 16
-output_dim = 1
 num_layers = 1
 n_epochs = 2
 learning_rate = 0.001
 
 # Load vocab and data loaders for IMDB
-vocab = get_vocab()
-imdb_vocab = get_imdb_vocab()
-train_dataloader, test_dataloader = get_imdb_dataloaders(batch_size, imdb_vocab)
+wikitext_tokenizer = get_tokenizer_and_vocab()
+train_dataloader, test_dataloader = get_imdb_dataloaders(batch_size, wikitext_tokenizer)
 
 # Initialize model, criterion, and optimizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-vocab_size = len(vocab)
+vocab_size = len(wikitext_tokenizer.get_vocab())
 model = CustomLSTMModel(
     vocab_size=vocab_size,
     embed_dim=embed_dim,
@@ -54,6 +52,7 @@ model.load_state_dict(torch.load(checkpoint_path))
 logger.info(f"Checkpoint loaded from {checkpoint_path}")
 
 # Replace the final layer
+output_dim = 1
 model.Wy = nn.Parameter(torch.empty(output_dim, hidden_dim).to(device))
 model.by = nn.Parameter(torch.zeros(output_dim, 1).to(device))
 nn.init.xavier_uniform_(model.Wy)
