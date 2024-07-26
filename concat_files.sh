@@ -19,6 +19,9 @@ concatenate_files() {
             if [[ "$file" == *"venv"* ]]; then
                 continue
             fi
+            if [[ "$file" == *"transformer"* ]]; then
+                continue
+            fi
             # If it's a directory, recursively call the function
             concatenate_files "$file"
         elif [[ "$file" == *.py ]]; then

@@ -1,11 +1,10 @@
 import datetime
-
 import torch
 import wandb
 from torch import nn, optim
 
 from logger import setup_logger
-from lstm.directly_on_task.imdb_dataset import get_vocab, get_dataloaders
+from lstm.directly_on_task.imdb_dataset import get_tokenizer_and_vocab, get_dataloaders
 from lstm.directly_on_task.lstm_model import CustomLSTMModel
 from lstm.directly_on_task.lstm_train_evaluate import train, evaluate
 
@@ -31,13 +30,13 @@ n_epochs = 2
 num_layers = 1
 learning_rate = 0.001
 
-# Load vocab and data loaders
-vocab = get_vocab()
-train_dataloader, test_dataloader = get_dataloaders(batch_size, vocab)
+# Load tokenizer and data loaders
+tokenizer = get_tokenizer_and_vocab()
+train_dataloader, test_dataloader = get_dataloaders(batch_size, tokenizer)
 
 # Initialize model, criterion, and optimizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-vocab_size = len(vocab)
+vocab_size = len(tokenizer.get_vocab())
 model = CustomLSTMModel(
     vocab_size=vocab_size,
     embed_dim=embed_dim,
