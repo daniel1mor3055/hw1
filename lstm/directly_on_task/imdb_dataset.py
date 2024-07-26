@@ -8,7 +8,7 @@ from torchtext.datasets import IMDB
 tokenizer = Tokenizer(models.BPE())
 tokenizer.pre_tokenizer = pre_tokenizers.ByteLevel()
 
-trainer = trainers.BpeTrainer(vocab_size=30000, special_tokens=["<unk>", "<pad>", "<s>", "</s>"])
+trainer = trainers.BpeTrainer(vocab_size=10000, special_tokens=["<unk>", "<pad>", "<s>", "</s>"])
 
 
 # Prepare your dataset (list of sentences)
@@ -20,7 +20,6 @@ def yield_texts(data_iter):
 def get_tokenizer_and_vocab():
     train_iter = IMDB(split="train")
     tokenizer.train_from_iterator(yield_texts(train_iter), trainer)
-    tokenizer.save("tokenizer.json")
     return tokenizer
 
 
