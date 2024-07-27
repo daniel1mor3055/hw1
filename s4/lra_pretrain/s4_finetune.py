@@ -41,6 +41,7 @@ vocab_size = len(tokenizer.get_vocab())
 model = S4Model(
     d_input=embed_dim,
     vocab_size=vocab_size,
+    d_output=vocab_size,
     d_model=hidden_dim,
     n_layers=num_layers,
     dropout=0.1
@@ -52,7 +53,8 @@ model.load_state_dict(torch.load(checkpoint_path))
 logger.info(f"Checkpoint loaded from {checkpoint_path}")
 
 # Replace the final layer
-model.decoder = nn.Linear(hidden_dim, 1).to(device)
+output_dim = 1
+model.decoder = nn.Linear(hidden_dim, output_dim).to(device)
 
 criterion = nn.BCEWithLogitsLoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
@@ -67,6 +69,7 @@ if use_wandb:
             "batch_size": batch_size,
             "embed_dim": embed_dim,
             "hidden_dim": hidden_dim,
+            "output_dim": output_dim,
             "n_epochs": n_epochs,
             "learning_rate": learning_rate,
             "model": "S4Model",

@@ -44,6 +44,7 @@ model = CustomTransformerModel(
     num_heads=num_heads,
     num_layers=num_layers,
     ff_hidden_dim=ff_hidden_dim,
+    output_dim=vocab_size,
     finetune=False
 ).to(device)
 
@@ -69,6 +70,7 @@ if use_wandb:
             "num_heads": num_heads,
             "num_layers": num_layers,
             "ff_hidden_dim": ff_hidden_dim,
+            "output_dim": vocab_size,
             "n_epochs": n_epochs,
             "learning_rate": learning_rate,
             "model": "CustomTransformerModel",

@@ -44,7 +44,8 @@ model = CustomTransformerModel(
     embed_dim=embed_dim,
     num_heads=num_heads,
     num_layers=num_layers,
-    ff_hidden_dim=ff_hidden_dim
+    ff_hidden_dim=ff_hidden_dim,
+    output_dim=vocab_size
 ).to(device)
 
 # Load the pretrained weights
@@ -53,7 +54,8 @@ model.load_state_dict(torch.load(checkpoint_path))
 logger.info(f"Checkpoint loaded from {checkpoint_path}")
 
 # Replace the final layer
-model.fc_out = nn.Linear(embed_dim, 1).to(device)
+output_dim = 1
+model.fc_out = nn.Linear(embed_dim, output_dim).to(device)
 
 criterion = nn.BCEWithLogitsLoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
@@ -70,6 +72,7 @@ if use_wandb:
             "num_heads": num_heads,
             "num_layers": num_layers,
             "ff_hidden_dim": ff_hidden_dim,
+            "output_dim": output_dim,
             "n_epochs": n_epochs,
             "learning_rate": learning_rate,
             "model": "CustomTransformerModel",

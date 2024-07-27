@@ -82,14 +82,15 @@ class TransformerBlock(nn.Module):
 
 
 class CustomTransformerModel(nn.Module):
-    def __init__(self, vocab_size, embed_dim, num_heads, num_layers, ff_hidden_dim, dropout=0.1, finetune=True):
+    def __init__(self, vocab_size, embed_dim, num_heads, num_layers, ff_hidden_dim, output_dim, dropout=0.1,
+                 finetune=True):
         super(CustomTransformerModel, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embed_dim)
         self.positional_encoding = PositionalEncoding(embed_dim)
         self.transformer_blocks = nn.ModuleList([
             TransformerBlock(embed_dim, num_heads, ff_hidden_dim, dropout)
             for _ in range(num_layers)])
-        self.fc_out = nn.Linear(embed_dim, vocab_size)
+        self.fc_out = nn.Linear(embed_dim, output_dim)
         self.finetune = finetune
 
     def generate_square_subsequent_mask(self, sz):

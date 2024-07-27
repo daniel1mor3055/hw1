@@ -40,6 +40,7 @@ vocab_size = len(tokenizer.get_vocab())
 model = S4Model(
     d_input=embed_dim,
     vocab_size=vocab_size,
+    d_output=vocab_size,
     d_model=hidden_dim,
     n_layers=num_layers,
     dropout=0.1,

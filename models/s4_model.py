@@ -138,6 +138,7 @@ class S4Model(nn.Module):
             self,
             d_input,
             vocab_size,
+            d_output,
             d_model=256,
             n_layers=4,
             dropout=0.2,
@@ -165,7 +166,7 @@ class S4Model(nn.Module):
             self.dropouts.append(nn.Dropout(dropout))
 
         # Linear decoder
-        self.decoder = nn.Linear(d_model, vocab_size)
+        self.decoder = nn.Linear(d_model, d_output)
         self.finetune = finetune
 
     def forward(self, x):

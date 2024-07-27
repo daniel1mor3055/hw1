@@ -5,7 +5,7 @@ from torch import nn
 
 
 class CustomLSTMModel(nn.Module):
-    def __init__(self, vocab_size, embed_dim, hidden_dim, num_layers, finetune=True):
+    def __init__(self, vocab_size, embed_dim, hidden_dim, num_layers, output_dim, finetune=True):
         super(CustomLSTMModel, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embed_dim)
         self.hidden_dim = hidden_dim
@@ -13,6 +13,7 @@ class CustomLSTMModel(nn.Module):
         self.num_layers = num_layers
         self.vocab_size = vocab_size
         self.finetune = finetune
+        self.output_dim = output_dim
 
         # Create layers
         self.layers = nn.ModuleList()
@@ -21,8 +22,8 @@ class CustomLSTMModel(nn.Module):
             self.layers.append(LSTMLayer(input_dim, hidden_dim))
 
         # Output layer weights and biases
-        self.Wy = nn.Parameter(torch.empty(vocab_size, hidden_dim))
-        self.by = nn.Parameter(torch.zeros(vocab_size, 1))
+        self.Wy = nn.Parameter(torch.empty(output_dim, hidden_dim))
+        self.by = nn.Parameter(torch.zeros(output_dim, 1))
 
         # Initialize weights using Xavier initialization
         nn.init.xavier_uniform_(self.Wy)

@@ -41,6 +41,7 @@ model = CustomLSTMModel(
     vocab_size=vocab_size,
     embed_dim=embed_dim,
     hidden_dim=hidden_dim,
+    output_dim=vocab_size,
     num_layers=num_layers,
     finetune=False
 ).to(device)
