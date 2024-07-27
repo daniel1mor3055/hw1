@@ -69,7 +69,7 @@ else:
     get_tokenizer_and_vocab = IMDBDataset.get_tokenizer_and_vocab
     get_dataloaders = IMDBDataset.get_dataloaders
 tokenizer = get_tokenizer_and_vocab()
-train_dataloader, test_dataloader = get_dataloaders(batch_size, tokenizer)
+train_dataloader, test_dataloader = get_dataloaders(batch_size)
 
 # Initialize model, criterion, and optimizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

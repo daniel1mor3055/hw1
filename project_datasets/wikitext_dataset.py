@@ -45,36 +45,39 @@ class WikiTextDataset(Dataset):
         # Check if the tokenizer file already exists
         if os.path.exists(tokenizer_file):
             logger.info("Tokenizer loaded from file.")
-            return Tokenizer.from_file(tokenizer_file)
+            WikiTextDataset.tokenizer = Tokenizer.from_file(tokenizer_file)
+        else:
+            train_iter = load_dataset(
+                "Salesforce/wikitext", "wikitext-103-raw-v1", split="train"
+            ).filter(lambda x: x["text"].strip() != "")["text"]
+            WikiTextDataset.tokenizer.train_from_iterator(
+                WikiTextDataset.yield_texts(train_iter), WikiTextDataset.trainer
+            )
 
-        train_iter = load_dataset(
-            "Salesforce/wikitext", "wikitext-103-raw-v1", split="train"
-        ).filter(lambda x: x["text"].strip() != "")["text"]
-        WikiTextDataset.tokenizer.train_from_iterator(
-            WikiTextDataset.yield_texts(train_iter), WikiTextDataset.trainer
-        )
-
-        # Save the tokenizer to a file
-        WikiTextDataset.tokenizer.save(tokenizer_file)
-        logger.info("Tokenizer trained and saved to file.")
+            # Save the tokenizer to a file
+            WikiTextDataset.tokenizer.save(tokenizer_file)
+            logger.info("Tokenizer trained and saved to file.")
 
         return WikiTextDataset.tokenizer
 
     @staticmethod
-    def text_pipeline(text, tokenizer):
-        return tokenizer.encode(text).ids
+    def text_pipeline(text):
+        return WikiTextDataset.tokenizer.encode(text).ids
 
     @staticmethod
-    def collate_batch(batch, tokenizer):
+    def collate_batch(batch):
         text_list = []
         for _text in batch:
             processed_text = torch.tensor(
-                WikiTextDataset.text_pipeline(_text, tokenizer), dtype=torch.int64
+                WikiTextDataset.text_pipeline(_text),
+                dtype=torch.int64,
             )
             text_list.append(processed_text)
         # Dummy labels for wikitext
         return torch.zeros(len(text_list), dtype=torch.int64), pad_sequence(
-            text_list, padding_value=tokenizer.token_to_id("<pad>"), batch_first=True
+            text_list,
+            padding_value=WikiTextDataset.tokenizer.token_to_id("<pad>"),
+            batch_first=True,
         )
 
     @staticmethod
@@ -87,12 +90,12 @@ class WikiTextDataset(Dataset):
             train_dataset,
             batch_size=batch_size,
             shuffle=True,
-            collate_fn=lambda x: WikiTextDataset.collate_batch(x, tokenizer),
+            collate_fn=lambda x: WikiTextDataset.collate_batch(x),
         )
         test_dataloader = DataLoader(
             test_dataset,
             batch_size=batch_size,
             shuffle=True,
-            collate_fn=lambda x: WikiTextDataset.collate_batch(x, tokenizer),
+            collate_fn=lambda x: WikiTextDataset.collate_batch(x),
         )
         return train_dataloader, test_dataloader
