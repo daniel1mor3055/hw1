@@ -70,7 +70,7 @@ checkpoint_path = f"{args.model}_{pretrained}.pth"
 if not finetune:
     # TODO - creates dummy lstm_wikitext_pretrained.pth, remove in real training
     torch.save(model.state_dict(), checkpoint_path)
-    print(f"Dummy checkpoint saved at {checkpoint_path}")
+    logger.info(f"Dummy checkpoint saved at {checkpoint_path}")
     # TODO - dummy ends here
 elif args.run_type != "task":
     model.load_state_dict(torch.load(checkpoint_path))

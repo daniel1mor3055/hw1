@@ -6,16 +6,21 @@ from tokenizers import Tokenizer, models, trainers, pre_tokenizers
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import DataLoader, Dataset
 
+from logger import setup_logger
+
 # Initialize BPE tokenizer
 tokenizer = Tokenizer(models.BPE())
 tokenizer.pre_tokenizer = pre_tokenizers.ByteLevel()
 
 trainer = trainers.BpeTrainer(vocab_size=10000, special_tokens=["<unk>", "<pad>", "<s>", "</s>"])
 
+logger = setup_logger(__name__)
+
 
 class WikiTextDataset(Dataset):
     def __init__(self, split, tokenizer):
-        self.dataset = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split=split).filter(lambda x: x['text'].strip() != '').select(range(2500))
+        self.dataset = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split=split).filter(
+            lambda x: x['text'].strip() != '').select(range(2500))
         self.tokenizer = tokenizer
 
     def __len__(self):
@@ -35,15 +40,17 @@ def get_tokenizer_and_vocab():
 
     # Check if the tokenizer file already exists
     if os.path.exists(tokenizer_file):
-        print("Tokenizer loaded from file.")
+        logger.info("Tokenizer loaded from file.")
         return Tokenizer.from_file(tokenizer_file)
 
-    train_iter = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split="train").filter(lambda x: x['text'].strip() != '')["text"]
+    train_iter = \
+    load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split="train").filter(lambda x: x['text'].strip() != '')[
+        "text"]
     tokenizer.train_from_iterator(yield_texts(train_iter), trainer)
 
     # Save the tokenizer to a file
     tokenizer.save(tokenizer_file)
-    print("Tokenizer trained and saved to file.")
+    logger.info("Tokenizer trained and saved to file.")
 
     return tokenizer
 

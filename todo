@@ -2,10 +2,6 @@ go over permutes!
 
 remove dummy stuff
 
-wandb only once
-
-model configuration for pretrain + finetune should be the same
-
 remove select
 
 fix logger missing logs
@@ -13,9 +9,3 @@ fix logger missing logs
 restore batch size
 
 context manager pickle get_vocab()
-
-prints to logs
-
-can remove output dim from mains that do not use output
-
-can squeeze files and unite code (reusable)
