@@ -94,10 +94,11 @@ else:
 model = model_dic[args.model](
     vocab_size=vocab_size, **config["models"][args.model], finetune=finetune
 )
+model.to(device)
 
 pretrained = "lra_pretrained" if "lra" in args.run_type else "wikitext_pretrained"
 checkpoint_path = f"{args.model}_{pretrained}.pth"
-if not finetune and args.run_type != "task":
+if finetune and args.run_type != "task":
     model.load_state_dict(torch.load(checkpoint_path))
     logger.info(f"Checkpoint loaded from {checkpoint_path}")
     replace_final_layer(model, config, args.model, device)

@@ -49,7 +49,7 @@ class IMDBDataset:
         )
 
     @staticmethod
-    def get_dataloaders(batch_size, tokenizer):
+    def get_dataloaders(batch_size):
         tokenizer = IMDBDataset.tokenizer
         train_iter, test_iter = IMDB(split="train"), IMDB(split="test")
         train_dataloader = DataLoader(
