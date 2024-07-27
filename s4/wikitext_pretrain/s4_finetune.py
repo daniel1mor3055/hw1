@@ -24,10 +24,10 @@ if use_wandb:
 logger = setup_logger(__name__)
 
 # Hyperparameters
-batch_size = 8
-embed_dim = 8
-hidden_dim = 16
-num_layers = 1
+batch_size = 32
+embed_dim = 24
+hidden_dim = 128
+num_layers = 2
 n_epochs = 2
 learning_rate = 0.001
 

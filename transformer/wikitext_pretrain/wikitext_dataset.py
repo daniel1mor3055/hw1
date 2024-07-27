@@ -15,7 +15,7 @@ trainer = trainers.BpeTrainer(vocab_size=10000, special_tokens=["<unk>", "<pad>"
 
 class WikiTextDataset(Dataset):
     def __init__(self, split, tokenizer):
-        self.dataset = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split=split).select(range(100))
+        self.dataset = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split=split)
         self.tokenizer = tokenizer
 
     def __len__(self):

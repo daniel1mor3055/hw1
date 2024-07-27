@@ -23,11 +23,11 @@ if use_wandb:
 logger = setup_logger(__name__)
 
 # Hyperparameters
-batch_size = 8
-embed_dim = 8
-num_heads = 1
-num_layers = 1
-ff_hidden_dim = 16
+batch_size = 32
+embed_dim = 32
+num_heads = 2
+num_layers = 4
+ff_hidden_dim = 128
 n_epochs = 1
 learning_rate = 0.001
 
@@ -45,6 +45,13 @@ model = CustomTransformerModel(
     num_layers=num_layers,
     ff_hidden_dim=ff_hidden_dim
 ).to(device)
+
+# TODO - creates dummy lstm_wikitext_pretrained.pth, remove in real training
+# Save the model state dict
+checkpoint_path = "transformer_wikitext_pretrained.pthu"
+torch.save(model.state_dict(), checkpoint_path)
+print(f"Dummy checkpoint saved at {checkpoint_path}")
+# TODO - dummy ends here
 
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)

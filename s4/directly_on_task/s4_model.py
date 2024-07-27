@@ -129,7 +129,7 @@ class S4D(nn.Module):
         y = self.dropout(self.activation(y))
         y = self.output_linear(y)
         if not self.transposed: y = y.transpose(-1, -2)
-        return y, None  # Return a dummy state to satisfy this repo's interface, but this can be modified
+        return y, None
 
 
 class S4Model(nn.Module):
