@@ -7,7 +7,7 @@ from torch import nn, optim
 from logger import setup_logger
 from project_datasets.imdb_dataset import get_tokenizer_and_vocab, get_dataloaders
 from s4.directly_on_task.s4_model import S4Model
-from s4.directly_on_task.s4_train_evaluate import train, evaluate
+from train_evaluate.train_evaluate import train, evaluate
 
 run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_s4_directly_on_task"
 
