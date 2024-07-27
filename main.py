@@ -67,12 +67,7 @@ model = model_dic[args.model](vocab_size=vocab_size, **config["models"][args.mod
 
 pretrained = "lra_pretrained" if "lra" in args.run_type else "wikitext_pretrained"
 checkpoint_path = f"{args.model}_{pretrained}.pth"
-if not finetune:
-    # TODO - creates dummy lstm_wikitext_pretrained.pth, remove in real training
-    torch.save(model.state_dict(), checkpoint_path)
-    logger.info(f"Dummy checkpoint saved at {checkpoint_path}")
-    # TODO - dummy ends here
-elif args.run_type != "task":
+if not finetune and args.run_type != "task":
     model.load_state_dict(torch.load(checkpoint_path))
     logger.info(f"Checkpoint loaded from {checkpoint_path}")
     replace_final_layer(model, config, args.model, device)
@@ -121,10 +116,11 @@ for epoch in range(n_epochs):
             "test_loss": test_loss
         })
 
-# Save the model checkpoint
-checkpoint_path = f"{args.model}_{args.run_type}_checkpoint.pth"
-torch.save(model.state_dict(), checkpoint_path)
-logger.info(f"Checkpoint saved at {checkpoint_path}")
+pretrained = "lra_pretrained" if "lra" in args.run_type else "wikitext_pretrained"
+checkpoint_path = f"{args.model}_{pretrained}.pth"
+if not finetune:
+    torch.save(model.state_dict(), checkpoint_path)
+    logger.info(f"Checkpoint saved at {checkpoint_path}")
 
 logger.info("Training completed.")
 

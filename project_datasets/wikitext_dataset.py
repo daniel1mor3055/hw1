@@ -20,7 +20,7 @@ logger = setup_logger(__name__)
 class WikiTextDataset(Dataset):
     def __init__(self, split, tokenizer):
         self.dataset = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split=split).filter(
-            lambda x: x['text'].strip() != '').select(range(2500))
+            lambda x: x['text'].strip() != '')
         self.tokenizer = tokenizer
 
     def __len__(self):
