@@ -15,7 +15,7 @@ trainer = trainers.BpeTrainer(vocab_size=10000, special_tokens=["<unk>", "<pad>"
 
 class WikiTextDataset(Dataset):
     def __init__(self, split, tokenizer):
-        self.dataset = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split=split)
+        self.dataset = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split=split).select(range(100))
         self.tokenizer = tokenizer
 
     def __len__(self):
@@ -57,7 +57,10 @@ def collate_batch(batch, tokenizer):
     for _text in batch:
         processed_text = torch.tensor(text_pipeline(_text, tokenizer), dtype=torch.int64)
         text_list.append(processed_text)
-    return pad_sequence(text_list, padding_value=tokenizer.token_to_id("<pad>"), batch_first=True)
+    # Dummy labels for wikitext
+    return torch.zeros(len(text_list), dtype=torch.int64), pad_sequence(text_list,
+                                                                        padding_value=tokenizer.token_to_id("<pad>"),
+                                                                        batch_first=True)
 
 
 def get_dataloaders(batch_size, tokenizer):

@@ -24,7 +24,7 @@ if use_wandb:
 logger = setup_logger(__name__)
 
 # Hyperparameters
-batch_size = 32
+batch_size = 1
 embed_dim = 16
 hidden_dim = 128
 num_layers = 2

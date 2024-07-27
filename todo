@@ -6,6 +6,12 @@ wandb only once
 
 model configuration for pretrain + finetune should be the same
 
+remove select
+
+fix logger missing logs
+
+restore batch size
+
 context manager pickle get_vocab()
 
 prints to logs

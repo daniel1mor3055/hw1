@@ -203,11 +203,13 @@ class S4Model(nn.Module):
         # Pooling: average pooling over the sequence length
         if self.finetune:
             x = x.mean(dim=1)
+            # Decode the outputs
+            x = self.decoder(x)  # (B, d_model) -> (B, d_output)
+            return x.squeeze(-1)
 
-        # Decode the outputs
-        x = self.decoder(x)  # (B, d_model) -> (B, d_output)
-
-        return x.squeeze(-1)
+        else:
+            x = self.decoder(x)  # (B, d_model) -> (B, d_output)
+            return x.squeeze(-1).permute(1, 0, 2)
 
     @cached_property
     def count_parameters(self):

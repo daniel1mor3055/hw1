@@ -23,7 +23,7 @@ if use_wandb:
 logger = setup_logger(__name__)
 
 # Hyperparameters
-batch_size = 32
+batch_size = 1
 embed_dim = 32
 num_heads = 2
 num_layers = 4

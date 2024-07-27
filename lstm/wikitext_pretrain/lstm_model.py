@@ -50,7 +50,7 @@ class CustomLSTMModel(nn.Module):
                 h_last = h[-1].permute(1, 0)  # (batch_size, hidden_dim)
                 y[t] = torch.matmul(h_last, self.Wy.t()) + self.by.t()  # (batch_size, vocab_size)
 
-            return y
+            return y.permute(1, 0, 2)
         else:
             for t in range(seq_len):
                 x = embedded[t, :, :]  # (embed_dim, batch_size)

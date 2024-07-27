@@ -6,7 +6,7 @@ import wandb
 def train(model, dataloader, criterion, optimizer, device, epoch, logger, use_wandb):
     model.train()
     total_loss = 0
-    for batch_idx, texts in enumerate(dataloader):
+    for batch_idx, (_, texts) in enumerate(dataloader):
         texts = texts.to(device)
         optimizer.zero_grad()
 
@@ -14,7 +14,7 @@ def train(model, dataloader, criterion, optimizer, device, epoch, logger, use_wa
         target_texts = texts[:, 1:]
 
         output = model(input_texts)
-        loss = criterion(output.permute(1, 0, 2).reshape(-1, output.size(-1)), target_texts.reshape(-1))
+        loss = criterion(output.reshape(-1, output.size(-1)), target_texts.reshape(-1))
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
@@ -36,7 +36,7 @@ def evaluate(model, dataloader, criterion, device, logger, use_wandb):
     model.eval()
     total_loss = 0
     with torch.no_grad():
-        for batch_idx, texts in enumerate(dataloader):
+        for batch_idx, (_, texts) in enumerate(dataloader):
             texts = texts.to(device)
 
             # Shift the target texts by one time step for the decoder input
@@ -44,7 +44,7 @@ def evaluate(model, dataloader, criterion, device, logger, use_wandb):
             target_texts = texts[:, 1:]
 
             output = model(input_texts)
-            loss = criterion(output.permute(1, 0, 2).reshape(-1, output.size(-1)), target_texts.reshape(-1))
+            loss = criterion(output.reshape(-1, output.size(-1)), target_texts.reshape(-1))
             total_loss += loss.item()
 
             if batch_idx % 10 == 0:
