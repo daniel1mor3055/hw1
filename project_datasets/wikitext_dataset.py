@@ -15,7 +15,7 @@ trainer = trainers.BpeTrainer(vocab_size=10000, special_tokens=["<unk>", "<pad>"
 
 class WikiTextDataset(Dataset):
     def __init__(self, split, tokenizer):
-        self.dataset = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split=split).select(range(100))
+        self.dataset = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split=split).filter(lambda x: x['text'].strip() != '').select(range(2500))
         self.tokenizer = tokenizer
 
     def __len__(self):
@@ -38,7 +38,7 @@ def get_tokenizer_and_vocab():
         print("Tokenizer loaded from file.")
         return Tokenizer.from_file(tokenizer_file)
 
-    train_iter = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split="train")["text"]
+    train_iter = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split="train").filter(lambda x: x['text'].strip() != '')["text"]
     tokenizer.train_from_iterator(yield_texts(train_iter), trainer)
 
     # Save the tokenizer to a file
