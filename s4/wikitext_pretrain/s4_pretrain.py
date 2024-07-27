@@ -42,7 +42,8 @@ model = S4Model(
     vocab_size=vocab_size,
     d_model=hidden_dim,
     n_layers=num_layers,
-    dropout=0.1
+    dropout=0.1,
+    finetune=False
 ).to(device)
 
 # TODO - creates dummy lstm_wikitext_pretrained.pth, remove in real training

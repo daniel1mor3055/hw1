@@ -43,7 +43,8 @@ model = CustomTransformerModel(
     embed_dim=embed_dim,
     num_heads=num_heads,
     num_layers=num_layers,
-    ff_hidden_dim=ff_hidden_dim
+    ff_hidden_dim=ff_hidden_dim,
+    finetune=False
 ).to(device)
 
 # TODO - creates dummy lstm_wikitext_pretrained.pth, remove in real training

@@ -82,7 +82,7 @@ class TransformerBlock(nn.Module):
 
 
 class CustomTransformerModel(nn.Module):
-    def __init__(self, vocab_size, embed_dim, num_heads, num_layers, ff_hidden_dim, dropout=0.1, finetune=False):
+    def __init__(self, vocab_size, embed_dim, num_heads, num_layers, ff_hidden_dim, dropout=0.1, finetune=True):
         super(CustomTransformerModel, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embed_dim)
         self.positional_encoding = PositionalEncoding(embed_dim)

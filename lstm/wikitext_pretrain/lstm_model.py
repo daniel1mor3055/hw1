@@ -5,7 +5,7 @@ from torch import nn
 
 
 class CustomLSTMModel(nn.Module):
-    def __init__(self, vocab_size, embed_dim, hidden_dim, num_layers, finetune=False):
+    def __init__(self, vocab_size, embed_dim, hidden_dim, num_layers, finetune=True):
         super(CustomLSTMModel, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embed_dim)
         self.hidden_dim = hidden_dim

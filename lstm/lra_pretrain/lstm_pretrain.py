@@ -41,7 +41,8 @@ model = CustomLSTMModel(
     vocab_size=vocab_size,
     embed_dim=embed_dim,
     hidden_dim=hidden_dim,
-    num_layers=num_layers
+    num_layers=num_layers,
+    finetune=False
 ).to(device)
 
 # TODO - creates dummy lstm_wikitext_pretrained.pth, remove in real training

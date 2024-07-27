@@ -133,7 +133,6 @@ class S4D(nn.Module):
 
 
 class S4Model(nn.Module):
-
     def __init__(
             self,
             d_input,
@@ -143,7 +142,7 @@ class S4Model(nn.Module):
             dropout=0.2,
             lr=0.001,
             prenorm=False,
-            finetune=False
+            finetune=True
     ):
         super().__init__()
 

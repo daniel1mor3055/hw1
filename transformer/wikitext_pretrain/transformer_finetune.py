@@ -44,8 +44,7 @@ model = CustomTransformerModel(
     embed_dim=embed_dim,
     num_heads=num_heads,
     num_layers=num_layers,
-    ff_hidden_dim=ff_hidden_dim,
-    finetune=True
+    ff_hidden_dim=ff_hidden_dim
 ).to(device)
 
 # Load the pretrained weights

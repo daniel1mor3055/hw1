@@ -143,7 +143,7 @@ class S4Model(nn.Module):
             dropout=0.2,
             lr=0.001,
             prenorm=False,
-            finetune=False
+            finetune=True
     ):
         super().__init__()
 

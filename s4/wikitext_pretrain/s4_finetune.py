@@ -43,8 +43,7 @@ model = S4Model(
     vocab_size=vocab_size,
     d_model=hidden_dim,
     n_layers=num_layers,
-    dropout=0.1,
-    finetune=True
+    dropout=0.1
 ).to(device)
 
 # Load the pretrained weights
