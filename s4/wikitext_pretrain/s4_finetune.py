@@ -5,7 +5,7 @@ import wandb
 from torch import nn, optim
 
 from logger import setup_logger
-from s4.wikitext_pretrain.imdb_dataset import get_dataloaders as get_imdb_dataloaders
+from project_datasets.imdb_dataset import get_dataloaders as get_imdb_dataloaders
 from s4.wikitext_pretrain.s4_finetune_train_evaluate import train, evaluate
 from s4.wikitext_pretrain.s4_model import S4Model
 from s4.wikitext_pretrain.wikitext_dataset import get_tokenizer_and_vocab

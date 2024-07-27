@@ -5,7 +5,7 @@ import wandb
 from torch import nn, optim
 
 from logger import setup_logger
-from lstm.directly_on_task.imdb_dataset import get_tokenizer_and_vocab, get_dataloaders
+from project_datasets.imdb_dataset import get_tokenizer_and_vocab, get_dataloaders
 from lstm.directly_on_task.lstm_model import CustomLSTMModel
 from lstm.directly_on_task.lstm_train_evaluate import train, evaluate
 

@@ -5,7 +5,7 @@ import wandb
 from torch import nn, optim
 
 from logger import setup_logger
-from transformer.lra_pretrain.imdb_dataset import get_tokenizer_and_vocab, get_dataloaders
+from project_datasets.imdb_dataset import get_tokenizer_and_vocab, get_dataloaders
 from transformer.lra_pretrain.transformer_finetune_train_evaluate import train, evaluate
 from transformer.lra_pretrain.transformer_model import CustomTransformerModel
 
