@@ -8,7 +8,7 @@ from logger import setup_logger
 from project_datasets.imdb_dataset import get_dataloaders as get_imdb_dataloaders
 from lstm.wikitext_pretrain.lstm_finetune_train_evaluate import train, evaluate
 from lstm.wikitext_pretrain.lstm_model import CustomLSTMModel
-from lstm.wikitext_pretrain.wikitext_dataset import get_tokenizer_and_vocab
+from project_datasets.wikitext_dataset import get_tokenizer_and_vocab
 
 run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_lstm_wikitext_pretrain_finetune_imdb"
 

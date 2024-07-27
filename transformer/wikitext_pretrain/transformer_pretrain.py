@@ -7,7 +7,7 @@ from torch import nn, optim
 from logger import setup_logger
 from transformer.wikitext_pretrain.transformer_model import CustomTransformerModel
 from transformer.wikitext_pretrain.transformer_pretrain_train_evaluate import train, evaluate
-from transformer.wikitext_pretrain.wikitext_dataset import get_tokenizer_and_vocab, get_dataloaders
+from project_datasets.wikitext_dataset import get_tokenizer_and_vocab, get_dataloaders
 
 run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_transformer_wikitext_pretrain"
 
