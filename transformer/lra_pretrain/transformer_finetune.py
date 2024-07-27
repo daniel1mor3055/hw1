@@ -7,7 +7,7 @@ from torch import nn, optim
 from logger import setup_logger
 from project_datasets.imdb_dataset import get_tokenizer_and_vocab, get_dataloaders
 from train_evaluate.train_evaluate import train, evaluate
-from transformer.lra_pretrain.transformer_model import CustomTransformerModel
+from models.transformer_model import CustomTransformerModel
 
 run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_transformer_lra_pretrain_imdb_finetune"
 

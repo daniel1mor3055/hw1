@@ -7,7 +7,7 @@ from torch import nn, optim
 from logger import setup_logger
 from project_datasets.imdb_dataset import get_dataloaders as get_imdb_dataloaders
 from train_evaluate.train_evaluate import train, evaluate
-from transformer.wikitext_pretrain.transformer_model import CustomTransformerModel
+from models.transformer_model import CustomTransformerModel
 from project_datasets.wikitext_dataset import get_tokenizer_and_vocab
 
 run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_transformer_wikitext_pretrain_imdb_finetune"

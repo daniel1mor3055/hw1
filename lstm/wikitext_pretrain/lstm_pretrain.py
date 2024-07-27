@@ -5,7 +5,7 @@ import wandb
 from torch import nn, optim
 
 from logger import setup_logger
-from lstm.wikitext_pretrain.lstm_model import CustomLSTMModel
+from models.lstm_model import CustomLSTMModel
 from train_evaluate.pretrain_train_evaluate import train, evaluate
 from project_datasets.wikitext_dataset import get_tokenizer_and_vocab, get_dataloaders
 

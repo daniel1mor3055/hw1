@@ -7,7 +7,7 @@ from torch import nn, optim
 from logger import setup_logger
 from project_datasets.imdb_dataset import get_tokenizer_and_vocab, get_dataloaders
 from train_evaluate.train_evaluate import train, evaluate
-from s4.lra_pretrain.s4_model import S4Model
+from models.s4_model import S4Model
 
 run_name = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_s4_lra_pretrain_finetune_imdb"
 
