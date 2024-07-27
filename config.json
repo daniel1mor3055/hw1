@@ -1,0 +1,28 @@
+{
+  "models": {
+    "lstm": {
+      "embed_dim": 16,
+      "hidden_dim": 128,
+      "num_layers": 2,
+      "output_dim": 1
+    },
+    "s4": {
+      "embed_dim": 24,
+      "hidden_dim": 128,
+      "output_dim": 1,
+      "num_layers": 2
+    },
+    "transformer": {
+      "embed_dim": 32,
+      "num_heads": 2,
+      "hidden_dim": 128,
+      "output_dim": 1,
+      "num_layers": 4
+    }
+  },
+  "run_parameters": {
+    "batch_size": 1,
+    "n_epochs": 2,
+    "learning_rate": 0.001
+  }
+}

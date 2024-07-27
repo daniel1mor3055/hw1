@@ -61,14 +61,14 @@ class MultiHeadAttention(nn.Module):
 
 
 class TransformerBlock(nn.Module):
-    def __init__(self, embed_dim, num_heads, ff_hidden_dim, dropout):
+    def __init__(self, embed_dim, num_heads, hidden_dim, dropout):
         super(TransformerBlock, self).__init__()
         self.attention = MultiHeadAttention(embed_dim, num_heads)
         self.layernorm1 = nn.LayerNorm(embed_dim)
         self.feedforward = nn.Sequential(
-            nn.Linear(embed_dim, ff_hidden_dim),
+            nn.Linear(embed_dim, hidden_dim),
             nn.ReLU(),
-            nn.Linear(ff_hidden_dim, embed_dim)
+            nn.Linear(hidden_dim, embed_dim)
         )
         self.layernorm2 = nn.LayerNorm(embed_dim)
         self.dropout = nn.Dropout(dropout)
@@ -82,13 +82,13 @@ class TransformerBlock(nn.Module):
 
 
 class CustomTransformerModel(nn.Module):
-    def __init__(self, vocab_size, embed_dim, num_heads, num_layers, ff_hidden_dim, output_dim, dropout=0.1,
+    def __init__(self, vocab_size, embed_dim, num_heads, num_layers, hidden_dim, output_dim, dropout=0.1,
                  finetune=True):
         super(CustomTransformerModel, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embed_dim)
         self.positional_encoding = PositionalEncoding(embed_dim)
         self.transformer_blocks = nn.ModuleList([
-            TransformerBlock(embed_dim, num_heads, ff_hidden_dim, dropout)
+            TransformerBlock(embed_dim, num_heads, hidden_dim, dropout)
             for _ in range(num_layers)])
         self.fc_out = nn.Linear(embed_dim, output_dim)
         self.finetune = finetune

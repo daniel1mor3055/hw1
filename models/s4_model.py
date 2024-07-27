@@ -36,10 +36,10 @@ class DropoutNd(nn.Module):
 class S4DKernel(nn.Module):
     """Generate convolution kernel from diagonal SSM parameters."""
 
-    def __init__(self, d_model, N=64, dt_min=0.001, dt_max=0.1, lr=None):
+    def __init__(self, hidden_dim, N=64, dt_min=0.001, dt_max=0.1, lr=None):
         super().__init__()
         # Generate dt
-        H = d_model
+        H = hidden_dim
         log_dt = torch.rand(H) * (
                 math.log(dt_max) - math.log(dt_min)
         ) + math.log(dt_min)
@@ -85,12 +85,12 @@ class S4DKernel(nn.Module):
 
 
 class S4D(nn.Module):
-    def __init__(self, d_model, d_state=64, dropout=0.0, transposed=True, **kernel_args):
+    def __init__(self, hidden_dim, d_state=64, dropout=0.0, transposed=True, **kernel_args):
         super().__init__()
 
-        self.h = d_model
+        self.h = hidden_dim
         self.n = d_state
-        self.d_output = self.h
+        self.output_dim = self.h
         self.transposed = transposed
 
         self.D = nn.Parameter(torch.randn(self.h))
@@ -136,50 +136,50 @@ class S4Model(nn.Module):
 
     def __init__(
             self,
-            d_input,
+            embed_dim,
             vocab_size,
-            d_output,
-            d_model=256,
-            n_layers=4,
-            dropout=0.2,
+            output_dim,
+            hidden_dim=256,
+            num_layers=4,
+            dropout=0.1,
             lr=0.001,
             prenorm=False,
             finetune=True
     ):
         super().__init__()
 
-        self.embedding = nn.Embedding(vocab_size, d_input)
+        self.embedding = nn.Embedding(vocab_size, embed_dim)
         self.prenorm = prenorm
 
-        # Linear encoder (d_input = 1 for grayscale and 3 for RGB)
-        self.encoder = nn.Linear(d_input, d_model)
+        # Linear encoder (embed_dim = 1 for grayscale and 3 for RGB)
+        self.encoder = nn.Linear(embed_dim, hidden_dim)
 
         # Stack S4 layers as residual blocks
         self.s4_layers = nn.ModuleList()
         self.norms = nn.ModuleList()
         self.dropouts = nn.ModuleList()
-        for _ in range(n_layers):
+        for _ in range(num_layers):
             self.s4_layers.append(
-                S4D(d_model, dropout=dropout, transposed=True, lr=lr)
+                S4D(hidden_dim, dropout=dropout, transposed=True, lr=lr)
             )
-            self.norms.append(nn.LayerNorm(d_model))
+            self.norms.append(nn.LayerNorm(hidden_dim))
             self.dropouts.append(nn.Dropout(dropout))
 
         # Linear decoder
-        self.decoder = nn.Linear(d_model, d_output)
+        self.decoder = nn.Linear(hidden_dim, output_dim)
         self.finetune = finetune
 
     def forward(self, x):
         """
-        Input x is shape (B, L, d_input)
+        Input x is shape (B, L, embed_dim)
         """
-        x = self.embedding(x)  # -> (B, L, d_input)
+        x = self.embedding(x)  # -> (B, L, embed_dim)
 
-        x = self.encoder(x)  # (B, L, d_input) -> (B, L, d_model)
+        x = self.encoder(x)  # (B, L, embed_dim) -> (B, L, hidden_dim)
 
-        x = x.transpose(-1, -2)  # (B, L, d_model) -> (B, d_model, L)
+        x = x.transpose(-1, -2)  # (B, L, hidden_dim) -> (B, hidden_dim, L)
         for layer, norm, dropout in zip(self.s4_layers, self.norms, self.dropouts):
-            # Each iteration of this loop will map (B, d_model, L) -> (B, d_model, L)
+            # Each iteration of this loop will map (B, hidden_dim, L) -> (B, hidden_dim, L)
 
             z = x
             if self.prenorm:
@@ -205,11 +205,11 @@ class S4Model(nn.Module):
         if self.finetune:
             x = x.mean(dim=1)
             # Decode the outputs
-            x = self.decoder(x)  # (B, d_model) -> (B, d_output)
+            x = self.decoder(x)  # (B, hidden_dim) -> (B, output_dim)
             return x.squeeze(-1)
 
         else:
-            x = self.decoder(x)  # (B, d_model) -> (B, d_output)
+            x = self.decoder(x)  # (B, hidden_dim) -> (B, output_dim)
             return x.squeeze(-1).permute(1, 0, 2)
 
     @cached_property

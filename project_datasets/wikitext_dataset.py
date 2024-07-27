@@ -31,7 +31,7 @@ def yield_texts(data_iter):
 
 
 def get_tokenizer_and_vocab():
-    tokenizer_file = "tokenizer.json"
+    tokenizer_file = "wikitext_tokenizer.json"
 
     # Check if the tokenizer file already exists
     if os.path.exists(tokenizer_file):
