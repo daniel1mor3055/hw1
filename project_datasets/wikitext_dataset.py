@@ -13,9 +13,12 @@ logger = setup_logger(__name__)
 
 
 class WikiTextDataset(Dataset):
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    datasets_dir = os.path.join(script_dir, "../saved_datasets")
+
     def __init__(self, split, tokenizer=None, tokenizer_file="wikitext_tokenizer.json"):
         self.dataset = load_dataset(
-            "Salesforce/wikitext", "wikitext-103-raw-v1", split=split
+            "Salesforce/wikitext", "wikitext-103-raw-v1", split=split, cache_dir=WikiTextDataset.datasets_dir
         ).filter(lambda x: x["text"].strip() != "")
 
         self.tokenizer_file = tokenizer_file
@@ -46,7 +49,7 @@ class WikiTextDataset(Dataset):
             self.tokenizer = Tokenizer.from_file(self.tokenizer_file)
         else:
             train_iter = load_dataset(
-                "Salesforce/wikitext", "wikitext-103-raw-v1", split="train"
+                "Salesforce/wikitext", "wikitext-103-raw-v1", split="train", cache_dir=WikiTextDataset.datasets_dir
             ).filter(lambda x: x["text"].strip() != "")["text"]
             self.tokenizer.train_from_iterator(
                 self.yield_texts(train_iter), self.trainer

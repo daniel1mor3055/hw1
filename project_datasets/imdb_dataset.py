@@ -1,3 +1,4 @@
+import os
 import torch
 from tokenizers import Tokenizer, models, trainers, pre_tokenizers
 from torch.nn.utils.rnn import pad_sequence
@@ -6,6 +7,9 @@ from torchtext.datasets import IMDB
 
 
 class IMDBDataset:
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    datasets_dir = os.path.join(script_dir, "../saved_datasets")
+
     def __init__(self, tokenizer=None, tokenizer_file="imdb_tokenizer.json"):
         if tokenizer is None:
             self.tokenizer = Tokenizer(models.BPE())
@@ -23,7 +27,7 @@ class IMDBDataset:
             yield text
 
     def get_tokenizer_and_vocab(self):
-        train_iter = IMDB(split="train")
+        train_iter = IMDB(split="train",cache_dir=IMDBDataset.datasets_dir)
         self.tokenizer.train_from_iterator(self.yield_texts(train_iter), self.trainer)
         return self.tokenizer
 
@@ -46,7 +50,7 @@ class IMDBDataset:
         )
 
     def get_dataloaders(self, batch_size):
-        train_iter, test_iter = IMDB(split="train"), IMDB(split="test")
+        train_iter, test_iter = IMDB(split="train",cache_dir=IMDBDataset.datasets_dir), IMDB(split="test",cache_dir="dir here")
         train_dataloader = DataLoader(
             list(train_iter),
             batch_size=batch_size,
