@@ -19,13 +19,11 @@ def train(model, dataloader, criterion, optimizer, device, epoch, logger, use_wa
         optimizer.step()
         total_loss += loss.item()
 
-        if batch_idx % 10 == 0:
+        if batch_idx % 250 == 0:
             logger.info(
                 f"Train Epoch: {epoch + 1} [{batch_idx * len(texts)}/{len(dataloader.dataset)} "
                 f"({100. * batch_idx / len(dataloader):.0f}%)]\tLoss: {loss.item():.6f}"
             )
-            if use_wandb:
-                wandb.log({"train_batch_loss": loss.item()})
             torch.cuda.empty_cache()
 
     avg_loss = total_loss / len(dataloader)
@@ -33,7 +31,7 @@ def train(model, dataloader, criterion, optimizer, device, epoch, logger, use_wa
     return avg_loss
 
 
-def evaluate(model, dataloader, criterion, device, logger, use_wandb):
+def evaluate(model, dataloader, criterion, device, logger, use_wandb, epoch):
     model.eval()
     total_loss = 0
     with torch.no_grad():
@@ -45,15 +43,15 @@ def evaluate(model, dataloader, criterion, device, logger, use_wandb):
             target_texts = texts[:, 1:]
 
             output = model(input_texts)
-            loss = criterion(output.reshape(-1, output.size(-1)), target_texts.reshape(-1))
+            loss = criterion(
+                output.reshape(-1, output.size(-1)), target_texts.reshape(-1)
+            )
             total_loss += loss.item()
 
-            if batch_idx % 10 == 0:
+            if batch_idx % 250 == 0:
                 logger.info(
                     f"Eval Batch: {batch_idx + 1}/{len(dataloader)}\tLoss: {loss.item():.6f}"
                 )
-                if use_wandb:
-                    wandb.log({"eval_batch_loss": loss.item()})
                 torch.cuda.empty_cache()
 
     avg_loss = total_loss / len(dataloader)

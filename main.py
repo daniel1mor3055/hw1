@@ -60,16 +60,16 @@ batch_size, n_epochs, learning_rate = (
 # Load tokenizer and data loaders
 if "wikitext" in args.run_type and "finetune" in args.run_type:
     wikitext_dataset = WikiTextDataset(split="train")
-    tokenizer = wikitext_dataset.get_tokenizer_and_vocab()
+    tokenizer = wikitext_dataset.tokenizer
     imdb_dataset = IMDBDataset(tokenizer=tokenizer)
     train_dataloader, test_dataloader = imdb_dataset.get_dataloaders(batch_size)
 elif "wikitext" in args.run_type:
     wikitext_dataset = WikiTextDataset(split="train")
-    tokenizer = wikitext_dataset.get_tokenizer_and_vocab()
+    tokenizer = wikitext_dataset.tokenizer
     train_dataloader, test_dataloader = wikitext_dataset.get_dataloaders(batch_size)
 else:
     imdb_dataset = IMDBDataset()
-    tokenizer = imdb_dataset.get_tokenizer_and_vocab()
+    tokenizer = imdb_dataset.tokenizer
     train_dataloader, test_dataloader = imdb_dataset.get_dataloaders(batch_size)
 
 # Initialize model, criterion, and optimizer
@@ -148,17 +148,15 @@ for epoch in range(n_epochs):
         args.use_wandb,
     )
     test_loss = evaluate(
-        model, test_dataloader, criterion, device, logger, args.use_wandb
+        model, test_dataloader, criterion, device, logger, args.use_wandb, epoch
     )
     logger.info(
-        f"Epoch: {epoch + 1}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}"
+        f"Epoch: {epoch}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}"
     )
 
     if args.use_wandb:
         # Log metrics to WandB
-        wandb.log(
-            {"epoch": epoch + 1, "train_loss": train_loss, "test_loss": test_loss}
-        )
+        wandb.log({"train_loss": train_loss, "test_loss": test_loss})
 
 pretrained = "lra_pretrained" if "lra" in args.run_type else "wikitext_pretrained"
 checkpoint_path = f"{args.model}_{pretrained}.pth"
