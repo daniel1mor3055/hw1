@@ -68,7 +68,7 @@ elif "wikitext" in args.run_type:
     tokenizer = wikitext_dataset.get_tokenizer_and_vocab()
     train_dataloader, test_dataloader = wikitext_dataset.get_dataloaders(batch_size)
 else:
-    imdb_dataset = IMDBDataset(split="train")
+    imdb_dataset = IMDBDataset()
     tokenizer = imdb_dataset.get_tokenizer_and_vocab()
     train_dataloader, test_dataloader = imdb_dataset.get_dataloaders(batch_size)
 
