@@ -58,18 +58,19 @@ batch_size, n_epochs, learning_rate = (
 )
 
 # Load tokenizer and data loaders
-
 if "wikitext" in args.run_type and "finetune" in args.run_type:
-    get_tokenizer_and_vocab = WikiTextDataset.get_tokenizer_and_vocab
-    get_dataloaders = IMDBDataset.get_dataloaders
+    wikitext_dataset = WikiTextDataset(split="train")
+    tokenizer = wikitext_dataset.get_tokenizer_and_vocab()
+    imdb_dataset = IMDBDataset(tokenizer=tokenizer)
+    train_dataloader, test_dataloader = imdb_dataset.get_dataloaders(batch_size)
 elif "wikitext" in args.run_type:
-    get_tokenizer_and_vocab = WikiTextDataset.get_tokenizer_and_vocab
-    get_dataloaders = WikiTextDataset.get_dataloaders
+    wikitext_dataset = WikiTextDataset(split="train")
+    tokenizer = wikitext_dataset.get_tokenizer_and_vocab()
+    train_dataloader, test_dataloader = wikitext_dataset.get_dataloaders(batch_size)
 else:
-    get_tokenizer_and_vocab = IMDBDataset.get_tokenizer_and_vocab
-    get_dataloaders = IMDBDataset.get_dataloaders
-tokenizer = get_tokenizer_and_vocab()
-train_dataloader, test_dataloader = get_dataloaders(batch_size)
+    imdb_dataset = IMDBDataset(split="train")
+    tokenizer = imdb_dataset.get_tokenizer_and_vocab()
+    train_dataloader, test_dataloader = imdb_dataset.get_dataloaders(batch_size)
 
 # Initialize model, criterion, and optimizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

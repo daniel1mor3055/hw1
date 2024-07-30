@@ -6,62 +6,57 @@ from torchtext.datasets import IMDB
 
 
 class IMDBDataset:
-    # Initialize BPE tokenizer
-    tokenizer = Tokenizer(models.BPE())
-    tokenizer.pre_tokenizer = pre_tokenizers.ByteLevel()
+    def __init__(self, tokenizer=None, tokenizer_file="imdb_tokenizer.json"):
+        if tokenizer is None:
+            self.tokenizer = Tokenizer(models.BPE())
+            self.tokenizer.pre_tokenizer = pre_tokenizers.ByteLevel()
+            self.trainer = trainers.BpeTrainer(
+                vocab_size=10000, special_tokens=["<unk>", "<pad>", "<s>", "</s>"]
+            )
+            self.get_tokenizer_and_vocab()
+        else:
+            self.tokenizer = tokenizer
+        self.tokenizer_file = tokenizer_file
 
-    trainer = trainers.BpeTrainer(
-        vocab_size=10000, special_tokens=["<unk>", "<pad>", "<s>", "</s>"]
-    )
-
-    @staticmethod
-    def yield_texts(data_iter):
+    def yield_texts(self, data_iter):
         for _, text in data_iter:
             yield text
 
-    @staticmethod
-    def get_tokenizer_and_vocab():
+    def get_tokenizer_and_vocab(self):
         train_iter = IMDB(split="train")
-        IMDBDataset.tokenizer.train_from_iterator(
-            IMDBDataset.yield_texts(train_iter), IMDBDataset.trainer
-        )
-        return IMDBDataset.tokenizer
+        self.tokenizer.train_from_iterator(self.yield_texts(train_iter), self.trainer)
+        return self.tokenizer
 
-    @staticmethod
-    def text_pipeline(text, tokenizer):
-        return tokenizer.encode(text).ids
+    def text_pipeline(self, text):
+        return self.tokenizer.encode(text).ids
 
-    @staticmethod
-    def label_pipeline(label):
+    def label_pipeline(self, label):
         return label - 1
 
-    @staticmethod
-    def collate_batch(batch, tokenizer):
+    def collate_batch(self, batch):
         label_list, text_list = [], []
         for _label, _text in batch:
-            label_list.append(IMDBDataset.label_pipeline(_label))
-            processed_text = torch.tensor(
-                IMDBDataset.text_pipeline(_text, tokenizer), dtype=torch.int64
-            )
+            label_list.append(self.label_pipeline(_label))
+            processed_text = torch.tensor(self.text_pipeline(_text), dtype=torch.int64)
             text_list.append(processed_text)
         return torch.tensor(label_list, dtype=torch.int64), pad_sequence(
-            text_list, padding_value=tokenizer.token_to_id("<pad>"), batch_first=True
+            text_list,
+            padding_value=self.tokenizer.token_to_id("<pad>"),
+            batch_first=True,
         )
 
-    @staticmethod
-    def get_dataloaders(batch_size):
-        tokenizer = IMDBDataset.tokenizer
+    def get_dataloaders(self, batch_size):
         train_iter, test_iter = IMDB(split="train"), IMDB(split="test")
         train_dataloader = DataLoader(
             list(train_iter),
             batch_size=batch_size,
             shuffle=True,
-            collate_fn=lambda x: IMDBDataset.collate_batch(x, tokenizer),
+            collate_fn=lambda x: self.collate_batch(x),
         )
         test_dataloader = DataLoader(
             list(test_iter),
             batch_size=batch_size,
             shuffle=True,
-            collate_fn=lambda x: IMDBDataset.collate_batch(x, tokenizer),
+            collate_fn=lambda x: self.collate_batch(x),
         )
         return train_dataloader, test_dataloader
