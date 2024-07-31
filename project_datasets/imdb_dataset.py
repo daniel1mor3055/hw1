@@ -25,8 +25,8 @@ class IMDBDataset:
         )  # Remove batch dimension
 
     def label_pipeline(self, label):
-        # Convert labels "pos" and "neg" to binary labels 1 and 0
-        return 1 if label == "pos" else 0
+        # In this dataset the labels are 1 for negative and 2 for positive
+        return label - 1
 
     def collate_batch(self, batch):
         label_list, text_list = [], []

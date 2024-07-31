@@ -1,9 +1,7 @@
 import torch
 
-import wandb
 
-
-def train(model, dataloader, criterion, optimizer, device, epoch, logger, use_wandb):
+def train(model, dataloader, criterion, optimizer, device, epoch, logger):
     model.train()
     total_loss = 0
     for batch_idx, (_, texts) in enumerate(dataloader):
@@ -31,7 +29,7 @@ def train(model, dataloader, criterion, optimizer, device, epoch, logger, use_wa
     return avg_loss
 
 
-def evaluate(model, dataloader, criterion, device, logger, use_wandb, epoch):
+def evaluate(model, dataloader, criterion, device, logger):
     model.eval()
     total_loss = 0
     with torch.no_grad():

@@ -142,25 +142,25 @@ epochs_since_improvement = 0
 
 for epoch in range(n_epochs):
     train_loss = train(
-        model,
-        train_dataloader,
-        criterion,
-        optimizer,
-        device,
-        epoch,
-        logger,
-        args.use_wandb,
+        model, train_dataloader, criterion, optimizer, device, epoch, logger
     )
-    test_loss = evaluate(
-        model, test_dataloader, criterion, device, logger, args.use_wandb, epoch
-    )
+    test_evaluate_res = evaluate(model, test_dataloader, criterion, device, logger)
+
+    test_accuracy = None
+    if not finetune:
+        test_loss = test_evaluate_res
+    else:
+        test_loss, test_accuracy = test_evaluate_res
     logger.info(
-        f"Epoch: {epoch}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}"
+        f"Epoch: {epoch}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, Test Accuracy: {test_accuracy}"
     )
 
     if args.use_wandb:
         # Log metrics to WandB
-        wandb.log({"train_loss": train_loss, "test_loss": test_loss})
+        log_dict = {"train_loss": train_loss, "test_loss": test_loss}
+        if test_accuracy is not None:
+            log_dict["test_accuracy"] = test_accuracy
+        wandb.log(log_dict)
 
     # Check for improvement
     if test_loss < best_loss:
