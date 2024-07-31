@@ -136,6 +136,10 @@ if finetune:
 else:
     from train_evaluate.pretrain_train_evaluate import train, evaluate
 
+best_loss = float("inf")
+best_model_params = None
+epochs_since_improvement = 0
+
 for epoch in range(n_epochs):
     train_loss = train(
         model,
@@ -158,10 +162,28 @@ for epoch in range(n_epochs):
         # Log metrics to WandB
         wandb.log({"train_loss": train_loss, "test_loss": test_loss})
 
+    # Check for improvement
+    if test_loss < best_loss:
+        best_loss = test_loss
+        epochs_since_improvement = 0
+        if not finetune:
+            best_model_params = model.state_dict()
+        logger.info(
+            f"New best model found at epoch {epoch} with test loss {test_loss:.4f}"
+        )
+    else:
+        epochs_since_improvement += 1
+        logger.info(f"No improvement for {epochs_since_improvement} epochs")
+
+    # Early stopping check
+    if epochs_since_improvement >= 5:
+        logger.info(f"No improvement for 5 consecutive epochs. Stopping training.")
+        break
+
 pretrained = "lra_pretrained" if "lra" in args.run_type else "wikitext_pretrained"
 checkpoint_path = f"{args.model}_{pretrained}.pth"
 if not finetune:
-    torch.save(model.state_dict(), checkpoint_path)
+    torch.save(best_model_params, checkpoint_path)
     logger.info(f"Checkpoint saved at {checkpoint_path}")
 
 logger.info("Training completed.")
