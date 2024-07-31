@@ -21,8 +21,8 @@
     }
   },
   "run_parameters": {
-    "batch_size": 8,
-    "n_epochs": 20,
+    "batch_size": 32,
+    "n_epochs": 50,
     "learning_rate": 0.001
   }
 }
