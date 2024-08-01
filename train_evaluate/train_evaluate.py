@@ -15,14 +15,14 @@ def train(model, dataloader, criterion, optimizer, device, epoch, logger):
 
         if batch_idx % 250 == 0:
             logger.info(
-                f"Train Epoch: {epoch + 1} [{batch_idx * len(labels)}/{len(dataloader.dataset)} "
+                f"Train Epoch: {epoch} [{batch_idx * len(labels)}/{len(dataloader.dataset)} "
                 f"({100. * batch_idx / len(dataloader):.0f}%)]\tLoss: {loss.item():.6f}"
             )
 
             torch.cuda.empty_cache()
 
     avg_loss = total_loss / len(dataloader)
-    logger.info(f"====> Epoch: {epoch + 1} Average loss: {avg_loss:.4f}")
+    logger.info(f"====> Epoch: {epoch} Average loss: {avg_loss:.4f}")
     return avg_loss
 
 
