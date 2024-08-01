@@ -1,3 +1,4 @@
+import os
 import torch
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import DataLoader
@@ -6,9 +7,12 @@ from transformers import BertTokenizer
 
 
 class IMDBDataset:
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    cache_dir = os.path.join(script_dir, "../saved")
+
     def __init__(self, tokenizer=None, tokenizer_name="bert-base-uncased"):
         if tokenizer is None:
-            self.tokenizer = BertTokenizer.from_pretrained(tokenizer_name)
+            self.tokenizer = BertTokenizer.from_pretrained(tokenizer_name,cache_dir=IMDBDataset.cache_dir)
         else:
             self.tokenizer = tokenizer
 
@@ -39,8 +43,7 @@ class IMDBDataset:
         )
 
     def get_dataloaders(self, batch_size):
-        # Create datasets and dataloaders
-        train_iter, test_iter = IMDB(split="train"), IMDB(split="test")
+        train_iter, test_iter = IMDB(split="train", root=IMDBDataset.cache_dir), IMDB(split="test",root=IMDBDataset.cache_dir)
         train_dataloader = DataLoader(
             list(train_iter),
             batch_size=batch_size,

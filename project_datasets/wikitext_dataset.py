@@ -12,14 +12,17 @@ logger = setup_logger(__name__)
 
 
 class WikiTextDataset(Dataset):
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    cache_dir = os.path.join(script_dir, "../saved")
+
     def __init__(self, split, tokenizer=None, tokenizer_name="bert-base-uncased"):
         self.dataset = load_dataset(
-            "Salesforce/wikitext", "wikitext-103-raw-v1", split=split
+            "Salesforce/wikitext", "wikitext-103-raw-v1", split=split, cache_dir=WikiTextDataset.cache_dir
         ).filter(lambda x: x["text"].strip() != "")
 
         if tokenizer is None:
             # Load pre-trained BERT tokenizer
-            self.tokenizer = BertTokenizer.from_pretrained(tokenizer_name)
+            self.tokenizer = BertTokenizer.from_pretrained(tokenizer_name,cache_dir=WikiTextDataset.cache_dir)
             logger.info(f"Pre-trained BERT tokenizer loaded: {tokenizer_name}")
         else:
             self.tokenizer = tokenizer
