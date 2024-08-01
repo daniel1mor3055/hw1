@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import json
+import random
 
 import torch
 import wandb
@@ -139,6 +140,10 @@ else:
 best_loss = float("inf")
 best_model_params = None
 epochs_since_improvement = 0
+
+# add seed for reproducibility
+torch.manual_seed(42)
+random.seed(42)
 
 for epoch in range(n_epochs):
     train_loss = train(
