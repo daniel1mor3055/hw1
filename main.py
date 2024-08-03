@@ -138,7 +138,6 @@ else:
     from train_evaluate.pretrain_train_evaluate import train, evaluate
 
 best_loss = float("inf")
-best_model_params = None
 epochs_since_improvement = 0
 
 # add seed for reproducibility
@@ -171,8 +170,13 @@ for epoch in range(n_epochs):
     if test_loss < best_loss:
         best_loss = test_loss
         epochs_since_improvement = 0
+        pretrained = (
+            "lra_pretrained" if "lra" in args.run_type else "wikitext_pretrained"
+        )
+        checkpoint_path = f"{args.model}_{pretrained}.pth"
         if not finetune:
-            best_model_params = model.state_dict()
+            torch.save(model.state_dict(), checkpoint_path)
+            logger.info(f"Checkpoint saved at {checkpoint_path}")
         logger.info(
             f"New best model found at epoch {epoch} with test loss {test_loss:.4f}"
         )
@@ -184,12 +188,6 @@ for epoch in range(n_epochs):
     if epochs_since_improvement >= 5:
         logger.info(f"No improvement for 5 consecutive epochs. Stopping training.")
         break
-
-pretrained = "lra_pretrained" if "lra" in args.run_type else "wikitext_pretrained"
-checkpoint_path = f"{args.model}_{pretrained}.pth"
-if not finetune:
-    torch.save(best_model_params, checkpoint_path)
-    logger.info(f"Checkpoint saved at {checkpoint_path}")
 
 logger.info("Training completed.")
 
